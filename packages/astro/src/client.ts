@@ -24,16 +24,21 @@ export default (element: HTMLElement) => {
     // The actual Sparkle component is its first child element.
     const component = (element.firstElementChild as HTMLElement) ?? element
     const schema = (component.constructor as any)?._propsSchema
+    const hasSchema =
+      schema &&
+      typeof schema === "object" &&
+      !Array.isArray(schema) &&
+      Object.keys(schema).length > 0
 
     // Set props that may not be reflected as attributes (e.g., Object/Array)
     for (const [key, value] of Object.entries(props)) {
-      if (schema) {
-        // Schema exists: only allow keys defined in schema
-        if (key in schema && key in component && !isUnsafeProp(key)) {
+      if (hasSchema) {
+        // Schema exists: only allow keys defined as own properties in schema
+        if (Object.prototype.hasOwnProperty.call(schema, key) && key in component) {
           ;(component as any)[key] = value
         }
       } else {
-        // No schema: block dangerous properties
+        // No schema (or empty schema): block dangerous properties
         if (key in component && !isUnsafeProp(key)) {
           ;(component as any)[key] = value
         }
