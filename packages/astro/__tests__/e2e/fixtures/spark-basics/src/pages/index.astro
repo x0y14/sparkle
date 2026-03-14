@@ -1,0 +1,46 @@
+---
+import { CounterElement } from "../components/counter-element.ts";
+import { LazyElement } from "../components/lazy-element.ts";
+import { EventElement } from "../components/event-element.ts";
+import { SlotElement } from "../components/slot-element.ts";
+import { StyledElement } from "../components/styled-element.ts";
+---
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Sparkle E2E Fixture</title>
+</head>
+<body>
+
+  <!-- E1(SSR DSD) / E2(client:load) / E4(class:list) -->
+  <!-- class:list は Astro コンパイラが class="host-class active" に変換する -->
+  <CounterElement
+    client:load
+    id="counter"
+    class:list={["host-class", { active: true }]}
+  />
+
+  <!-- E3: client:visible — 200vh のスペーサーで viewport 外に配置 -->
+  <div style="height: 200vh; display: block;"></div>
+  <LazyElement client:visible id="lazy" />
+
+  <!-- E5(CSS custom properties) / E8(adoptedStyleSheets) -->
+  <!-- style="--primary: ..." でホスト要素に CSS 変数を設定 -->
+  <!-- shadow DOM 内の var(--primary) はこの変数を継承する（CSS 仕様） -->
+  <StyledElement
+    client:load
+    id="styled"
+    style="--primary: rgb(255, 0, 0)"
+  />
+
+  <!-- E6: useEvent — sparkle:ping CustomEvent を dispatch するボタン -->
+  <EventElement client:load id="event-el" />
+
+  <!-- E7: useSlot — 2つの span をスロットに入れる -->
+  <SlotElement client:load id="slot-el">
+    <span class="item">A</span>
+    <span class="item">B</span>
+  </SlotElement>
+
+</body>
+</html>

@@ -1,0 +1,15 @@
+refs/
+
+.DS_Store
+
+.vscode/
+
+node_modules/
+
+.astro/
+
+test-results/
+
+AGENTS.md
+
+examples/
