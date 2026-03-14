@@ -4,8 +4,8 @@
   "private": true,
   "type": "module",
   "dependencies": {
-    "@blask/astro": "workspace:*",
-    "@blask/core": "workspace:*",
+    "@sparkio/astro": "workspace:*",
+    "@sparkio/core": "workspace:*",
     "astro": "^5.0.0"
   }
 }

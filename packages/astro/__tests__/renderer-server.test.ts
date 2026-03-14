@@ -1,49 +1,49 @@
 import { describe, test, expect, vi } from "vitest"
-import blaskRenderer from "../src/server.js"
+import sparkioRenderer from "../src/server.js"
 
-describe("blask server renderer", () => {
-  test("server check() identifies blask components", () => {
-    const BlackComp = class extends HTMLElement {
-      static __blask = true
+describe("sparkio server renderer", () => {
+  test("server check() identifies sparkio components", () => {
+    const SparkioComp = class extends HTMLElement {
+      static __sparkio = true
     }
-    expect(blaskRenderer.check(BlackComp)).toBe(true)
+    expect(sparkioRenderer.check(SparkioComp)).toBe(true)
   })
 
-  test("server check() rejects non-blask", () => {
-    expect(blaskRenderer.check(class {})).toBe(false)
-    expect(blaskRenderer.check(null)).toBe(false)
-    expect(blaskRenderer.check(undefined)).toBe(false)
-    expect(blaskRenderer.check("string")).toBe(false)
-    expect(blaskRenderer.check(42)).toBe(false)
+  test("server check() rejects non-sparkio", () => {
+    expect(sparkioRenderer.check(class {})).toBe(false)
+    expect(sparkioRenderer.check(null)).toBe(false)
+    expect(sparkioRenderer.check(undefined)).toBe(false)
+    expect(sparkioRenderer.check("string")).toBe(false)
+    expect(sparkioRenderer.check(42)).toBe(false)
   })
 
   test("renderToStaticMarkup returns DSD HTML", async () => {
-    const BlackComp = class extends HTMLElement {
-      static __blask = true
+    const SparkioComp = class extends HTMLElement {
+      static __sparkio = true
       static _renderFn = () => "<p>server rendered</p>"
     } as any
 
     // We need to register it to get a tag name
     const tag = `ssr-test-${Date.now()}`
-    customElements.define(tag, BlackComp)
+    customElements.define(tag, SparkioComp)
 
-    const result = await blaskRenderer.renderToStaticMarkup(BlackComp, { _tag: tag }, {})
+    const result = await sparkioRenderer.renderToStaticMarkup(SparkioComp, { _tag: tag }, {})
     expect(result.html).toContain("shadowrootmode")
     expect(result.html).toContain("<p>server rendered</p>")
   })
 
   test("renderToStaticMarkup passes named slots without wrapper", async () => {
     const renderFn = vi.fn(() => '<slot name="header"></slot><slot></slot>')
-    const BlackComp = class extends HTMLElement {
-      static __blask = true
+    const SparkioComp = class extends HTMLElement {
+      static __sparkio = true
       static _renderFn = renderFn
     } as any
 
     const tag = `ssr-slots-${Date.now()}`
-    customElements.define(tag, BlackComp)
+    customElements.define(tag, SparkioComp)
 
-    const result = await blaskRenderer.renderToStaticMarkup(
-      BlackComp,
+    const result = await sparkioRenderer.renderToStaticMarkup(
+      SparkioComp,
       { _tag: tag },
       { default: "<p>body</p>", header: '<h1 slot="header">Title</h1>' },
     )
@@ -55,16 +55,16 @@ describe("blask server renderer", () => {
 
   test("props are forwarded", async () => {
     const renderFn = vi.fn((props: any) => `<p>${props.name}</p>`)
-    const BlackComp = class extends HTMLElement {
-      static __blask = true
+    const SparkioComp = class extends HTMLElement {
+      static __sparkio = true
       static _renderFn = renderFn
     } as any
 
     const tag = `ssr-props-${Date.now()}`
-    customElements.define(tag, BlackComp)
+    customElements.define(tag, SparkioComp)
 
-    const result = await blaskRenderer.renderToStaticMarkup(
-      BlackComp,
+    const result = await sparkioRenderer.renderToStaticMarkup(
+      SparkioComp,
       { _tag: tag, name: "test" },
       {},
     )
@@ -73,9 +73,9 @@ describe("blask server renderer", () => {
 
   test("warns when using fallback tag name", async () => {
     const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {})
-    const Component = { __blask: true, _renderFn: () => "<p>hi</p>" }
-    await blaskRenderer.renderToStaticMarkup(Component, {}, {})
-    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining("blask-component"))
+    const Component = { __sparkio: true, _renderFn: () => "<p>hi</p>" }
+    await sparkioRenderer.renderToStaticMarkup(Component, {}, {})
+    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining("sparkio-component"))
     warnSpy.mockRestore()
   })
 })

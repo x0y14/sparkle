@@ -4,13 +4,13 @@ import { useRef } from "./use-ref.js"
 import { useLayoutEffect } from "./use-layout-effect.js"
 import { CONTEXT_EVENT, type ContextRequestDetail } from "./context-symbols.js"
 
-export type BlackContext<T> = {
+export type SparkioContext<T> = {
   Provider: CustomElementConstructor
   defaultValue: T
 }
 
-export function createContext<T>(defaultValue: T, tag?: string): BlackContext<T> {
-  let Context!: BlackContext<T>
+export function createContext<T>(defaultValue: T, tag?: string): SparkioContext<T> {
+  let Context!: SparkioContext<T>
 
   const Provider = defineElement(
     {
@@ -34,7 +34,7 @@ export function createContext<T>(defaultValue: T, tag?: string): BlackContext<T>
       useLayoutEffect(() => {
         const el = host.current
         const handler = (event: Event) => {
-          const e = event as CustomEvent<ContextRequestDetail<T, BlackContext<T>>>
+          const e = event as CustomEvent<ContextRequestDetail<T, SparkioContext<T>>>
           if (e.detail.context !== Context) return
           e.stopPropagation()
           const cb = e.detail.callback

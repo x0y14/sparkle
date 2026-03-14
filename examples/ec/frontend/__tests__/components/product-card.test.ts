@@ -1,5 +1,5 @@
 import { describe, test, expect } from "vitest"
-import { renderToString } from "@blask/core"
+import { renderToString } from "@sparkio/core"
 
 describe("ec-product-card", () => {
   test("SSR: DSD テンプレート生成", async () => {

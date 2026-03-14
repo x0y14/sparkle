@@ -1,4 +1,4 @@
-import { defineElement, css } from "@blask/core"
+import { defineElement, css } from "@sparkio/core"
 
 const StyledElement = defineElement(
   {

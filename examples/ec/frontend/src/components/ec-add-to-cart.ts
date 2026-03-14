@@ -1,4 +1,4 @@
-import { defineElement, useState, useHost, useEffect, useEvent, css } from "@blask/core"
+import { defineElement, useState, useHost, useEffect, useEvent, css } from "@sparkio/core"
 
 const AddToCart = defineElement(
   {

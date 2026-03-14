@@ -389,7 +389,7 @@ describe("defineElement", () => {
 
     // console.warn should have been called
     expect(warnSpy).toHaveBeenCalledWith(
-      expect.stringContaining("[blask] Failed to parse attribute value as JSON"),
+      expect.stringContaining("[sparkio] Failed to parse attribute value as JSON"),
     )
 
     // Previous value should be preserved (not overwritten with undefined)

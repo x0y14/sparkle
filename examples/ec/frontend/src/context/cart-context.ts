@@ -1,4 +1,4 @@
-import { createContext } from "@blask/core"
+import { createContext } from "@sparkio/core"
 import type { CartItem } from "../lib/types.js"
 
 export type CartContextValue = {

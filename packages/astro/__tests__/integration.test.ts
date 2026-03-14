@@ -1,21 +1,21 @@
 import { describe, test, expect, vi } from "vitest"
-import { blaskIntegration } from "../src/index.js"
+import { sparkioIntegration } from "../src/index.js"
 
-describe("blaskIntegration", () => {
+describe("sparkioIntegration", () => {
   test("returns valid AstroIntegration", () => {
-    const integration = blaskIntegration()
+    const integration = sparkioIntegration()
     expect(integration).toHaveProperty("name")
     expect(integration).toHaveProperty("hooks")
     expect(integration.hooks).toHaveProperty("astro:config:setup")
   })
 
-  test("name is '@blask/astro'", () => {
-    const integration = blaskIntegration()
-    expect(integration.name).toBe("@blask/astro")
+  test("name is '@sparkio/astro'", () => {
+    const integration = sparkioIntegration()
+    expect(integration.name).toBe("@sparkio/astro")
   })
 
   test("addRenderer called with correct entrypoints", () => {
-    const integration = blaskIntegration()
+    const integration = sparkioIntegration()
     const addRenderer = vi.fn()
     const updateConfig = vi.fn()
     const injectScript = vi.fn()
@@ -28,13 +28,13 @@ describe("blaskIntegration", () => {
 
     expect(addRenderer).toHaveBeenCalledTimes(1)
     const rendererConfig = addRenderer.mock.calls[0][0]
-    expect(rendererConfig.name).toBe("@blask/astro")
+    expect(rendererConfig.name).toBe("@sparkio/astro")
     expect(rendererConfig.serverEntrypoint).toContain("server")
     expect(rendererConfig.clientEntrypoint).toContain("client")
   })
 
   test("updateConfig adds Vite plugin", () => {
-    const integration = blaskIntegration()
+    const integration = sparkioIntegration()
     const addRenderer = vi.fn()
     const updateConfig = vi.fn()
     const injectScript = vi.fn()
@@ -51,7 +51,7 @@ describe("blaskIntegration", () => {
   })
 
   test("injects DSD polyfill by default", () => {
-    const integration = blaskIntegration()
+    const integration = sparkioIntegration()
     const addRenderer = vi.fn()
     const updateConfig = vi.fn()
     const injectScript = vi.fn()
@@ -67,7 +67,7 @@ describe("blaskIntegration", () => {
   })
 
   test("polyfill:false skips injection", () => {
-    const integration = blaskIntegration({ polyfill: false })
+    const integration = sparkioIntegration({ polyfill: false })
     const addRenderer = vi.fn()
     const updateConfig = vi.fn()
     const injectScript = vi.fn()
@@ -82,7 +82,7 @@ describe("blaskIntegration", () => {
   })
 
   test("polyfill script runs immediately (no DOMContentLoaded)", () => {
-    const integration = blaskIntegration()
+    const integration = sparkioIntegration()
     const addRenderer = vi.fn()
     const updateConfig = vi.fn()
     const injectScript = vi.fn()
@@ -98,9 +98,9 @@ describe("blaskIntegration", () => {
     expect(script).toContain("p(document)")
   })
 
-  test("unoConfig が blaskVitePlugin に渡される", () => {
+  test("unoConfig が sparkioVitePlugin に渡される", () => {
     const fakeUnoConfig = { presets: [] }
-    const integration = blaskIntegration({ unoConfig: fakeUnoConfig })
+    const integration = sparkioIntegration({ unoConfig: fakeUnoConfig })
     const addRenderer = vi.fn()
     const updateConfig = vi.fn()
     const injectScript = vi.fn()
@@ -113,11 +113,11 @@ describe("blaskIntegration", () => {
 
     const config = updateConfig.mock.calls[0][0]
     const plugin = config.vite.plugins[0]
-    expect(plugin.name).toBe("blask:vite")
+    expect(plugin.name).toBe("sparkio:vite")
   })
 
   test("unoConfig 未指定でもエラーにならない", () => {
-    const integration = blaskIntegration()
+    const integration = sparkioIntegration()
     const addRenderer = vi.fn()
     const updateConfig = vi.fn()
     const injectScript = vi.fn()
@@ -132,7 +132,7 @@ describe("blaskIntegration", () => {
   })
 
   test("polyfill script supports DSD attributes", () => {
-    const integration = blaskIntegration()
+    const integration = sparkioIntegration()
     const addRenderer = vi.fn()
     const updateConfig = vi.fn()
     const injectScript = vi.fn()

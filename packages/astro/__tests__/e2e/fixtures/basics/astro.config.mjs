@@ -1,6 +1,6 @@
 import { defineConfig } from "astro/config"
-import { blaskIntegration } from "@blask/astro"
+import { sparkioIntegration } from "@sparkio/astro"
 
 export default defineConfig({
-  integrations: [blaskIntegration()],
+  integrations: [sparkioIntegration()],
 })

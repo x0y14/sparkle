@@ -21,7 +21,7 @@ async function shadowText(
   )
 }
 
-test.describe("Astro + blask E2E", () => {
+test.describe("Astro + sparkio E2E", () => {
   test.beforeEach(async ({ page }) => {
     await page.goto("/")
   })
@@ -126,7 +126,7 @@ test.describe("Astro + blask E2E", () => {
       () =>
         new Promise<{ bubbles: boolean; composed: boolean }>((resolve) => {
           document.addEventListener(
-            "blask:ping",
+            "sparkio:ping",
             (e) => {
               const ce = e as CustomEvent
               resolve({ bubbles: ce.bubbles, composed: ce.composed })

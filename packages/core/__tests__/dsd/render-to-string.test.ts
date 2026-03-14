@@ -275,7 +275,7 @@ describe("renderToString", () => {
     })
     const html = renderToString(Comp, tag, {})
     expect(warnSpy).toHaveBeenCalledWith(
-      expect.stringContaining("[blask] SSR render error"),
+      expect.stringContaining("[sparkio] SSR render error"),
       expect.any(Error),
     )
     // Still produces valid HTML shell
@@ -317,12 +317,12 @@ describe("renderToString", () => {
     expect(html).not.toContain("</style><script>")
   })
 
-  test("invalid tag name falls back to blask-component", () => {
+  test("invalid tag name falls back to sparkio-component", () => {
     const Comp = defineElement({}, () => "<p>hi</p>")
     const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {})
     const html = renderToString(Comp, "div><script>alert(1)</script><div", {})
-    expect(html).toContain("<blask-component")
-    expect(html).toContain("</blask-component>")
+    expect(html).toContain("<sparkio-component")
+    expect(html).toContain("</sparkio-component>")
     expect(html).not.toContain("<div><script>")
     expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining("Invalid tag name"))
     warnSpy.mockRestore()

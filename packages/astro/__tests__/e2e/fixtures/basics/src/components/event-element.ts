@@ -1,11 +1,11 @@
-import { defineElement, useEvent, useHost, useEffect } from "@blask/core"
+import { defineElement, useEvent, useHost, useEffect } from "@sparkio/core"
 
 const EventElement = defineElement(
   {
     tag: "event-element",
   },
   () => {
-    const dispatch = useEvent("blask:ping", {
+    const dispatch = useEvent("sparkio:ping", {
       bubbles: true,
       composed: true,
     })

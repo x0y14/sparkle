@@ -1,4 +1,4 @@
-import { defineElement, useState, useEffect, useCallback, useHost } from "@blask/core"
+import { defineElement, useState, useEffect, useCallback, useHost } from "@sparkio/core"
 import { CartContext, type CartContextValue } from "../context/cart-context.js"
 import type { CartItem } from "../lib/types.js"
 

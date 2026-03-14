@@ -1,11 +1,11 @@
 import { getCurrent, nextIndex, getHookState } from "./context.js"
 import { useEffect } from "./use-effect.js"
 import { CONTEXT_EVENT, type ContextRequestDetail } from "./context-symbols.js"
-import type { BlackContext } from "./create-context.js"
+import type { SparkioContext } from "./create-context.js"
 
 type ContextHookState<T> = {
   value: unknown
-  _context?: BlackContext<T>
+  _context?: SparkioContext<T>
   _value?: T
   _hasProvider?: boolean
   _unsubscribe?: () => void
@@ -14,13 +14,13 @@ type ContextHookState<T> = {
 }
 
 /**
- * Subscribe to a BlackContext value.
+ * Subscribe to a SparkioContext value.
  *
  * **SSR limitation**: In SSR (`renderToString`), `useContext` always returns
  * `context.defaultValue` because the Context Protocol relies on DOM events
  * which are not available during server-side rendering.
  */
-export function useContext<T>(context: BlackContext<T>): T {
+export function useContext<T>(context: SparkioContext<T>): T {
   const ctx = getCurrent()
   if (ctx.isSSR) {
     nextIndex() // useContext 本体のスロット (CSR L26 相当)
@@ -45,7 +45,7 @@ export function useContext<T>(context: BlackContext<T>): T {
     state._unsubscribe?.()
     state._context = context
 
-    const detail: ContextRequestDetail<T, BlackContext<T>> = {
+    const detail: ContextRequestDetail<T, SparkioContext<T>> = {
       context,
       callback: state._subscriber,
     }

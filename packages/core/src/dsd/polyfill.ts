@@ -28,7 +28,7 @@ export function polyfillDSD(root?: Document | ShadowRoot): void {
     } catch {
       if (typeof console !== "undefined") {
         console.warn(
-          `[blask] DSD polyfill: attachShadow failed for <${parent.tagName.toLowerCase()}>`,
+          `[sparkio] DSD polyfill: attachShadow failed for <${parent.tagName.toLowerCase()}>`,
         )
       }
       parent.appendChild(tpl.content.cloneNode(true))

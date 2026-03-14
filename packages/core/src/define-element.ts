@@ -11,14 +11,14 @@ export type PropType = {
   event?: { type: string; bubbles?: boolean; composed?: boolean }
 }
 
-export type BlackComponentOptions<P extends Record<string, PropType>> = {
+export type SparkioComponentOptions<P extends Record<string, PropType>> = {
   props?: P
   styles?: CSSStyleSheet | CSSStyleSheet[] | string | CSSResult
   shadow?: boolean | ShadowRootInit
   tag?: string
 }
 
-export type BlackRenderFn<P> = (props: P) => string | Node | null
+export type SparkioRenderFn<P> = (props: P) => string | Node | null
 
 type InferProps<P extends Record<string, PropType>> = {
   [K in keyof P]: P[K]["type"] extends typeof String
@@ -58,7 +58,7 @@ export function coerceValue(value: string | null, type: Function): CoerceResult 
         }
       } catch {
         if (typeof console !== "undefined") {
-          console.warn(`[blask] Failed to parse attribute value as JSON: "${value}"`)
+          console.warn(`[sparkio] Failed to parse attribute value as JSON: "${value}"`)
         }
         return { ok: false }
       }
@@ -110,18 +110,18 @@ function normalizeStylesToCssText(
 }
 
 export function defineElement<P extends Record<string, PropType>>(
-  options: BlackComponentOptions<P>,
-  renderFn: BlackRenderFn<InferProps<P>>,
+  options: SparkioComponentOptions<P>,
+  renderFn: SparkioRenderFn<InferProps<P>>,
 ): CustomElementConstructor {
   const propNames = Object.keys(options.props || {})
   const observedAttrs = propNames.map(camelToKebab)
   const propsSchema = options.props || ({} as P)
 
   // SSR (Node.js) 環境では HTMLElement が存在しない
-  // Astro の SSR renderer は _renderFn / _tag / __blask のみ使うためスタブを返す
+  // Astro の SSR renderer は _renderFn / _tag / __sparkio のみ使うためスタブを返す
   if (typeof HTMLElement === "undefined") {
-    return Object.assign(class BlackSSRComponent {}, {
-      __blask: true,
+    return Object.assign(class SparkioSSRComponent {}, {
+      __sparkio: true,
       _renderFn: renderFn,
       _tag: options.tag,
       _styles: normalizeStylesToCssText(options.styles),
@@ -132,8 +132,8 @@ export function defineElement<P extends Record<string, PropType>>(
 
   const sharedSheets = prepareSheets(options.styles)
 
-  class BlackElement extends HTMLElement {
-    static __blask = true
+  class SparkioElement extends HTMLElement {
+    static __sparkio = true
     static _renderFn = renderFn
     static _tag = options.tag
     static _styles = normalizeStylesToCssText(options.styles)
@@ -224,7 +224,7 @@ export function defineElement<P extends Record<string, PropType>>(
           root.replaceChildren(html)
         }
       } catch (err) {
-        console.error(`[blask] Render error in <${options.tag || "unknown"}>:`, err)
+        console.error(`[sparkio] Render error in <${options.tag || "unknown"}>:`, err)
         // Don't clear the DOM — keep the previous render result visible
         // so the user sees something rather than a blank component
       }
@@ -233,11 +233,11 @@ export function defineElement<P extends Record<string, PropType>>(
 
   // Property getters/setters on prototype
   for (const [name, schema] of Object.entries(propsSchema)) {
-    Object.defineProperty(BlackElement.prototype, name, {
-      get(this: BlackElement) {
+    Object.defineProperty(SparkioElement.prototype, name, {
+      get(this: SparkioElement) {
         return this._props[name]
       },
-      set(this: BlackElement, value: unknown) {
+      set(this: SparkioElement, value: unknown) {
         const oldValue = this._props[name]
         this._props[name] = value
         if (schema.reflect) {
@@ -270,8 +270,8 @@ export function defineElement<P extends Record<string, PropType>>(
   }
 
   if (options.tag && typeof customElements !== "undefined") {
-    customElements.define(options.tag, BlackElement)
+    customElements.define(options.tag, SparkioElement)
   }
 
-  return BlackElement
+  return SparkioElement
 }

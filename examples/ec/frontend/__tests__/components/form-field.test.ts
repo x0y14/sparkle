@@ -1,5 +1,5 @@
 import { describe, test, expect, afterEach } from "vitest"
-import { renderToString } from "@blask/core"
+import { renderToString } from "@sparkio/core"
 
 function flushMicrotasks(rounds = 5): Promise<void> {
   return new Promise((r) => {

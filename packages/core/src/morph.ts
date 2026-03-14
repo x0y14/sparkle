@@ -1,4 +1,4 @@
-// Scratch morph implementation for blask
+// Scratch morph implementation for sparkio
 // Inspired by idiomorph (0BSD) — only the subset needed for Shadow DOM innerHTML morphing
 
 type IdMap = Map<Node, Set<string>>

@@ -1,4 +1,4 @@
-export const CONTEXT_EVENT = "blask.context"
+export const CONTEXT_EVENT = "sparkio.context"
 
 export type ContextRequestDetail<T, C = unknown> = {
   context: C

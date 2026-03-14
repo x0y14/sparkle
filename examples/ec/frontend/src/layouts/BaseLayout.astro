@@ -9,14 +9,14 @@ const { title } = Astro.props;
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>{title} | Black EC</title>
+  <title>{title} | Sparkio EC</title>
 </head>
 <body class="bg-surface min-h-screen font-sans text-ink antialiased">
   <CartProviderApp client:load>
     <header class="bg-surface border-b border-border sticky top-0 z-50 backdrop-blur-sm bg-opacity-90">
       <div class="max-w-7xl mx-auto px-6 lg:px-12">
         <div class="flex items-center justify-between h-16">
-          <a href="/" class="font-display text-2xl font-300 tracking-tight text-ink hover:opacity-70 transition-opacity">Black EC</a>
+          <a href="/" class="font-display text-2xl font-300 tracking-tight text-ink hover:opacity-70 transition-opacity">Sparkio EC</a>
           <nav class="flex items-center">
             <CartBadge client:load />
           </nav>
@@ -28,8 +28,8 @@ const { title } = Astro.props;
     </main>
     <footer class="border-t border-border mt-24">
       <div class="max-w-7xl mx-auto px-6 lg:px-12 py-12 flex items-center justify-between">
-        <span class="font-display text-sm font-300 text-ink-faint">Black EC</span>
-        <span class="font-sans text-[10px] tracking-widest uppercase text-ink-faint">Black</span>
+        <span class="font-display text-sm font-300 text-ink-faint">Sparkio EC</span>
+        <span class="font-sans text-[10px] tracking-widest uppercase text-ink-faint">Sparkio</span>
       </div>
     </footer>
   </CartProviderApp>

@@ -26,7 +26,7 @@ export type { EffectEntry, RenderScheduler } from "./hooks/scheduler.js"
 
 // Define Element
 export { defineElement } from "./define-element.js"
-export type { PropType, BlackComponentOptions, BlackRenderFn } from "./define-element.js"
+export type { PropType, SparkioComponentOptions, SparkioRenderFn } from "./define-element.js"
 
 // Morph
 export { morph } from "./morph.js"
@@ -38,7 +38,7 @@ export { polyfillDSD, supportsDSD } from "./dsd/polyfill.js"
 
 // Context
 export { createContext } from "./hooks/create-context.js"
-export type { BlackContext } from "./hooks/create-context.js"
+export type { SparkioContext } from "./hooks/create-context.js"
 export { useContext } from "./hooks/use-context.js"
 export { CONTEXT_EVENT } from "./hooks/context-symbols.js"
 

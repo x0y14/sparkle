@@ -2,10 +2,10 @@ import type { Plugin } from "vite"
 import { createGenerator, type UserConfig, type UnoGenerator } from "@unocss/core"
 
 const CSS_PLACEHOLDER = "@unocss-placeholder"
-const VIRTUAL_ID = "virtual:blask/uno.css"
-const RESOLVED_VIRTUAL_ID = "\0virtual:blask/uno.css"
+const VIRTUAL_ID = "virtual:sparkio/uno.css"
+const RESOLVED_VIRTUAL_ID = "\0virtual:sparkio/uno.css"
 
-export type BlackVitePluginOptions = {
+export type SparkioVitePluginOptions = {
   unoConfig?: UserConfig
   preflights?: boolean
   safelist?: boolean
@@ -27,13 +27,13 @@ async function resolveApply(code: string, uno: UnoGenerator): Promise<string> {
   return result
 }
 
-export function blaskVitePlugin(options?: BlackVitePluginOptions): Plugin {
+export function sparkioVitePlugin(options?: SparkioVitePluginOptions): Plugin {
   let uno: UnoGenerator
   const preflights = options?.preflights ?? true
   const safelist = options?.safelist ?? true
 
   return {
-    name: "blask:vite",
+    name: "sparkio:vite",
     enforce: "pre",
 
     async buildStart() {

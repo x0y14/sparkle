@@ -1,10 +1,10 @@
 {
-  "name": "@blask/monorepo",
+  "name": "@sparkio/monorepo",
   "version": "0.1.0",
   "private": true,
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/x0y14/blask.git"
+    "url": "git+https://github.com/x0y14/sparkio.git"
   },
   "type": "module",
   "scripts": {

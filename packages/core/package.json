@@ -1,10 +1,10 @@
 {
-  "name": "@blask/core",
+  "name": "@sparkio/core",
   "version": "0.0.1",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/x0y14/blask.git",
+    "url": "git+https://github.com/x0y14/sparkio.git",
     "directory": "packages/core"
   },
   "files": [

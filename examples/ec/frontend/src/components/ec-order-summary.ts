@@ -1,4 +1,4 @@
-import { defineElement, useContext, css } from "@blask/core"
+import { defineElement, useContext, css } from "@sparkio/core"
 import { CartContext } from "../context/cart-context.js"
 
 const OrderSummary = defineElement(

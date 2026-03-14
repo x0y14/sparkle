@@ -115,10 +115,10 @@ describe("Integration: component lifecycle", () => {
 
     expect(el.shadowRoot!.innerHTML).toContain("Hello, world!")
 
-    setName!("blask")
+    setName!("sparkio")
     await flushMicrotasks()
 
-    expect(el.shadowRoot!.innerHTML).toContain("Hello, blask!")
+    expect(el.shadowRoot!.innerHTML).toContain("Hello, sparkio!")
     document.body.removeChild(el)
   })
 

@@ -1,4 +1,4 @@
-import { defineElement, useProp, useEvent, useHost, useEffect, css } from "@blask/core"
+import { defineElement, useProp, useEvent, useHost, useEffect, css } from "@sparkio/core"
 
 const FormField = defineElement(
   {

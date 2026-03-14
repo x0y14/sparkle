@@ -1,4 +1,4 @@
-import { defineElement, useState, useContext, useHost, useEffect, css } from "@blask/core"
+import { defineElement, useState, useContext, useHost, useEffect, css } from "@sparkio/core"
 import { CartContext } from "../context/cart-context.js"
 
 const CheckoutForm = defineElement(

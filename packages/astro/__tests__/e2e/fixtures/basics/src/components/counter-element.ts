@@ -1,4 +1,4 @@
-import { defineElement, useState, useHost, useEffect } from "@blask/core"
+import { defineElement, useState, useHost, useEffect } from "@sparkio/core"
 
 const CounterElement = defineElement(
   {

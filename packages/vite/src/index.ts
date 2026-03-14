@@ -1,2 +1,2 @@
-export { blaskVitePlugin } from "./plugin.js"
-export type { BlackVitePluginOptions } from "./plugin.js"
+export { sparkioVitePlugin } from "./plugin.js"
+export type { SparkioVitePluginOptions } from "./plugin.js"

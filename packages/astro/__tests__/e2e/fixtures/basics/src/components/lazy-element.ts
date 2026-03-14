@@ -1,4 +1,4 @@
-import { defineElement, useState, useEffect } from "@blask/core"
+import { defineElement, useState, useEffect } from "@sparkio/core"
 
 const LazyElement = defineElement(
   {

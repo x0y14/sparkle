@@ -5,8 +5,8 @@ import { resolve } from "node:path"
 describe("BaseLayout.astro のヘッダー構成", () => {
   const src = readFileSync(resolve(__dirname, "../../src/layouts/BaseLayout.astro"), "utf-8")
 
-  test("Black EC ロゴリンクが存在する", () => {
-    expect(src).toContain("Black EC")
+  test("Sparkio EC ロゴリンクが存在する", () => {
+    expect(src).toContain("Sparkio EC")
     expect(src).toMatch(/href="\/"/)
   })
 
