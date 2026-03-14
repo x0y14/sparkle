@@ -1,0 +1,48 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+const { id } = Astro.params;
+---
+<BaseLayout title="注文完了">
+  <div id="order-detail" class="max-w-2xl mx-auto">
+    <p class="font-sans text-sm text-ink-faint">注文情報を読み込み中...</p>
+  </div>
+  <script define:vars={{ orderId: id }}>
+    import("../../lib/api.js").then(async ({ fetchOrder }) => {
+      const container = document.getElementById("order-detail");
+      try {
+        const order = await fetchOrder(orderId);
+        const itemsHtml = order.items.map((i) =>
+          `<div class="flex justify-between py-3 border-b border-border">
+            <span class="font-sans text-xs tracking-wide uppercase text-ink-muted">${i.product.name} × ${i.quantity}</span>
+            <span class="font-display text-base text-ink tabular-nums">¥${(i.product.price * i.quantity).toLocaleString("ja-JP")}</span>
+          </div>`
+        ).join("");
+        container.innerHTML = `
+          <div class="border border-green-700/20 bg-green-50/40 p-8 mb-12">
+            <h2 class="font-display text-2xl font-300 text-green-900">ご注文ありがとうございます</h2>
+            <p class="font-sans text-[10px] tracking-widest uppercase text-green-800/60 mt-2">${order.id}</p>
+          </div>
+          <div class="mb-12">
+            <h3 class="font-sans text-[10px] tracking-widest uppercase text-ink-faint mb-6">注文内容</h3>
+            ${itemsHtml}
+            <div class="flex justify-between pt-6 mt-2">
+              <span class="font-sans text-xs tracking-widest uppercase text-ink-muted">合計</span>
+              <span class="font-display text-2xl font-300 text-ink">¥${order.total.toLocaleString("ja-JP")}</span>
+            </div>
+          </div>
+          <div class="border-t border-border pt-8">
+            <h3 class="font-sans text-[10px] tracking-widest uppercase text-ink-faint mb-4">配送先</h3>
+            <p class="font-sans text-sm text-ink">${order.customer.name}</p>
+            <p class="font-sans text-sm text-ink-muted mt-1">${order.customer.email}</p>
+            <p class="font-sans text-sm text-ink-muted mt-1">${order.customer.address}</p>
+          </div>
+          <div class="mt-16 text-center">
+            <a href="/" class="font-sans text-[10px] tracking-widest uppercase text-ink-faint hover:text-ink transition-colors border-b border-border-dark pb-1">買い物を続ける</a>
+          </div>`;
+      } catch {
+        container.innerHTML = '<p class="text-accent-error text-sm">注文情報の取得に失敗しました</p>';
+      }
+    });
+  </script>
+</BaseLayout>

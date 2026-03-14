@@ -1,0 +1,43 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import ProductCard from "../components/ec-product-card.js";
+import type { Product } from "../lib/types.js";
+
+const currentCategory = Astro.url.searchParams.get("category") ?? "all";
+const apiUrl = currentCategory === "all"
+  ? "http://localhost:3001/api/products"
+  : `http://localhost:3001/api/products?category=${currentCategory}`;
+const res = await fetch(apiUrl);
+const products: Product[] = await res.json();
+const categories = ["all", "sandals", "leather", "sneakers", "sport"];
+const labels: Record<string, string> = { all: "All", sandals: "Sandals", leather: "Leather", sneakers: "Sneakers", sport: "Sport" };
+---
+<BaseLayout title="商品一覧">
+  <div class="flex items-end justify-between mb-12">
+    <h1 class="font-display text-4xl lg:text-5xl font-300 tracking-tight text-ink">Collection</h1>
+    <span class="font-sans text-xs text-ink-faint tracking-wide">{products.length} items</span>
+  </div>
+  <nav class="flex gap-1 mb-12 border-b border-border">
+    {categories.map((cat) => (
+      <a href={cat === "all" ? "/" : `/?category=${cat}`}
+         class:list={[
+           "px-5 py-3 font-sans text-[10px] tracking-widest uppercase transition-colors border-b-2",
+           cat === currentCategory
+             ? "text-ink border-ink"
+             : "text-ink-muted border-transparent hover:text-ink hover:border-ink",
+         ]}>
+        {labels[cat]}
+      </a>
+    ))}
+  </nav>
+  <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-10">
+    {products.map((p) => (
+      <ProductCard
+        name={p.name}
+        price={p.price}
+        image={p.image}
+        productId={p.id}
+      />
+    ))}
+  </div>
+</BaseLayout>

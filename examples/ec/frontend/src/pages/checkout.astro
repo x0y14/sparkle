@@ -1,0 +1,18 @@
+---
+export const prerender = true;
+import BaseLayout from "../layouts/BaseLayout.astro";
+import CheckoutForm from "../components/ec-checkout-form.ts";
+---
+<BaseLayout title="チェックアウト">
+  <div class="max-w-2xl mx-auto">
+    <h1 class="font-display text-3xl lg:text-4xl font-300 tracking-tight text-ink mb-12">Checkout</h1>
+    <CheckoutForm client:load />
+    <div class="mt-16 text-center">
+      <a href="/cart" class="font-sans text-[10px] tracking-widest uppercase text-ink-faint hover:text-ink transition-colors border-b border-border-dark pb-1">&larr; カートに戻る</a>
+    </div>
+  </div>
+  <script>
+    import "../components/ec-form-field.js";
+    import "../components/ec-order-summary.js";
+  </script>
+</BaseLayout>

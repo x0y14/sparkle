@@ -1,0 +1,38 @@
+---
+export const prerender = true;
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+<BaseLayout title="カート">
+  <div class="max-w-3xl mx-auto">
+    <h1 class="font-display text-3xl lg:text-4xl font-300 tracking-tight text-ink mb-12">Shopping Cart</h1>
+    <div id="cart-contents">
+      <p class="font-sans text-sm text-ink-faint">カートの内容を読み込み中...</p>
+    </div>
+    <div class="mt-12 pt-8 border-t border-border flex items-center justify-between">
+      <a href="/" class="font-sans text-[10px] tracking-widest uppercase text-ink-faint hover:text-ink transition-colors">&larr; 買い物を続ける</a>
+      <a href="/checkout" class="h-12 px-12 bg-accent text-white font-sans text-xs tracking-widest uppercase hover:bg-accent-hover transition-colors inline-flex items-center">レジに進む</a>
+    </div>
+  </div>
+  <script>
+    import "../components/ec-cart-item.js";
+    import "../components/ec-quantity-selector.js";
+    import { fetchCart } from "../lib/api.js";
+    async function renderCart() {
+      const container = document.getElementById("cart-contents")!;
+      try {
+        const cart = await fetchCart();
+        if (cart.items.length === 0) {
+          container.innerHTML = '<p class="font-sans text-sm text-ink-faint py-12 text-center">カートは空です</p>';
+          return;
+        }
+        container.innerHTML = cart.items.map((item) => {
+          const p = item.product;
+          if (!p) return "";
+          return `<ec-cart-item product-id="${p.id}" name="${p.name}" price="${p.price}" quantity="${item.quantity}" image="${p.image}" stock="${p.stock}"></ec-cart-item>`;
+        }).join("");
+      } catch { container.innerHTML = '<p class="text-accent-error text-sm">カートの読み込みに失敗しました</p>'; }
+    }
+    renderCart();
+    document.addEventListener("cart-changed", () => renderCart());
+  </script>
+</BaseLayout>
