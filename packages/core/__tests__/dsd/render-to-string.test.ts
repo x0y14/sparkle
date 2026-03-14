@@ -300,22 +300,27 @@ describe("renderToString", () => {
     const Comp = defineElement({ tag, styles: maliciousCss }, () => "<p>hi</p>")
     const html = renderToString(Comp, tag, {})
     // </style> がそのまま出力されると style タグが閉じてしまう
-    expect(html).not.toContain('</style><script>')
+    expect(html).not.toContain("</style><script>")
     // エスケープされた形で含まれるべき
-    expect(html).toContain('<\\/style>')
+    expect(html).toContain("<\\/style>")
   })
 
   test("unoCSS containing </style> is also escaped", () => {
     const tag = uniqueTag()
     const Comp = defineElement({ tag }, () => "<p>hi</p>")
-    const html = renderToString(Comp, tag, {}, { unoCSS: 'a{content:"</style><script>alert(1)</script>"}' })
-    expect(html).not.toContain('</style><script>')
+    const html = renderToString(
+      Comp,
+      tag,
+      {},
+      { unoCSS: 'a{content:"</style><script>alert(1)</script>"}' },
+    )
+    expect(html).not.toContain("</style><script>")
   })
 
   test("invalid tag name falls back to blask-component", () => {
     const Comp = defineElement({}, () => "<p>hi</p>")
     const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {})
-    const html = renderToString(Comp, 'div><script>alert(1)</script><div', {})
+    const html = renderToString(Comp, "div><script>alert(1)</script><div", {})
     expect(html).toContain("<blask-component")
     expect(html).toContain("</blask-component>")
     expect(html).not.toContain("<div><script>")
@@ -335,8 +340,8 @@ describe("renderToString", () => {
     const tag = uniqueTag()
     const Comp = defineElement({ tag }, () => "<p>hi</p>")
     const html = renderToString(Comp, tag, { 'x" onclick="alert(1)': "val" })
-    expect(html).not.toContain('onclick')
-    expect(html).not.toContain('alert')
+    expect(html).not.toContain("onclick")
+    expect(html).not.toContain("alert")
   })
 
   test("SSR coerces props same as CSR (Boolean)", () => {

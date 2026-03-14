@@ -1,5 +1,5 @@
-import { defineElement, useContext, css } from "@blask/core";
-import { CartContext } from "../context/cart-context.js";
+import { defineElement, useContext, css } from "@blask/core"
+import { CartContext } from "../context/cart-context.js"
 
 const OrderSummary = defineElement(
   {
@@ -8,21 +8,21 @@ const OrderSummary = defineElement(
 :host { @apply block; }`,
   },
   () => {
-    const cart = useContext(CartContext);
-    const totalStr = cart.totalPrice.toLocaleString("ja-JP");
+    const cart = useContext(CartContext)
+    const totalStr = cart.totalPrice.toLocaleString("ja-JP")
     const itemsHtml =
       cart.items.length > 0
         ? cart.items
             .map((i) => {
-              const p = i.product;
-              if (!p) return "";
+              const p = i.product
+              if (!p) return ""
               return `<div class="flex justify-between py-3 border-b border-border">
             <span class="font-sans text-xs tracking-wide uppercase text-ink-muted">${p.name} × ${i.quantity}</span>
             <span class="font-display text-base text-ink tabular-nums">¥${(p.price * i.quantity).toLocaleString("ja-JP")}</span>
-          </div>`;
+          </div>`
             })
             .join("")
-        : '<p class="font-sans text-sm text-ink-faint py-4">カートは空です</p>';
+        : '<p class="font-sans text-sm text-ink-faint py-4">カートは空です</p>'
 
     return `
       <div>
@@ -34,7 +34,7 @@ const OrderSummary = defineElement(
             <span class="font-display text-3xl font-300 text-ink">¥${totalStr}</span>
           </div>
         </div>
-      </div>`;
+      </div>`
   },
-);
-export default OrderSummary;
+)
+export default OrderSummary

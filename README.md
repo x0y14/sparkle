@@ -218,25 +218,25 @@ const MyComponent = defineElement(
 
 ## Packages
 
-| Package | Description |
-|---------|-------------|
-| `@blask/core` | Hooks, component definition, DOM morphing, Declarative Shadow DOM SSR, Context API |
-| `@blask/vite` | Vite plugin — UnoCSS injection into Shadow DOM, `@apply` resolution, HMR |
-| `@blask/astro` | Astro integration — server-side renderer, client-side hydration, DSD polyfill |
+| Package        | Description                                                                        |
+| -------------- | ---------------------------------------------------------------------------------- |
+| `@blask/core`  | Hooks, component definition, DOM morphing, Declarative Shadow DOM SSR, Context API |
+| `@blask/vite`  | Vite plugin — UnoCSS injection into Shadow DOM, `@apply` resolution, HMR           |
+| `@blask/astro` | Astro integration — server-side renderer, client-side hydration, DSD polyfill      |
 
 ## Hooks
 
-| Hook | Description |
-|------|-------------|
-| `useState` | Local reactive state with setter function |
-| `useRef` | Mutable ref object that persists across renders |
-| `useMemo` | Memoized value, recomputed when dependencies change |
-| `useCallback` | Memoized function reference |
-| `useEffect` | Side effects that run after render |
-| `useLayoutEffect` | Synchronous effects that run before paint |
-| `useHost` | Access the host element reference |
-| `useProp` | Two-way binding to a component prop with setter |
-| `useEvent` | Dispatch custom events from the component |
-| `useSlot` | Reactively access slotted elements |
-| `useContext` | Subscribe to a context value |
-| `createContext` | Create a context with a provider custom element |
+| Hook              | Description                                         |
+| ----------------- | --------------------------------------------------- |
+| `useState`        | Local reactive state with setter function           |
+| `useRef`          | Mutable ref object that persists across renders     |
+| `useMemo`         | Memoized value, recomputed when dependencies change |
+| `useCallback`     | Memoized function reference                         |
+| `useEffect`       | Side effects that run after render                  |
+| `useLayoutEffect` | Synchronous effects that run before paint           |
+| `useHost`         | Access the host element reference                   |
+| `useProp`         | Two-way binding to a component prop with setter     |
+| `useEvent`        | Dispatch custom events from the component           |
+| `useSlot`         | Reactively access slotted elements                  |
+| `useContext`      | Subscribe to a context value                        |
+| `createContext`   | Create a context with a provider custom element     |

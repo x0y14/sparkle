@@ -53,7 +53,7 @@ export function coerceValue(value: string | null, type: Function): CoerceResult 
         return {
           ok: true,
           value: JSON.parse(value, (k, v) =>
-            k === "__proto__" || k === "constructor" || k === "prototype" ? undefined : v
+            k === "__proto__" || k === "constructor" || k === "prototype" ? undefined : v,
           ),
         }
       } catch {

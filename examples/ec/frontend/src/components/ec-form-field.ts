@@ -1,4 +1,4 @@
-import { defineElement, useProp, useEvent, useHost, useEffect, css } from "@blask/core";
+import { defineElement, useProp, useEvent, useHost, useEffect, css } from "@blask/core"
 
 const FormField = defineElement(
   {
@@ -14,35 +14,36 @@ const FormField = defineElement(
 :host { @apply block; }`,
   },
   (props) => {
-    const [value, setValue] = useProp<string>("value");
-    const dispatch = useEvent<{ name: string; value: string }>(
-      "field-change",
-      { bubbles: true, composed: true },
-    );
-    const host = useHost();
+    const [value, setValue] = useProp<string>("value")
+    const dispatch = useEvent<{ name: string; value: string }>("field-change", {
+      bubbles: true,
+      composed: true,
+    })
+    const host = useHost()
 
     useEffect(() => {
-      const root = host.current.shadowRoot!;
+      const root = host.current.shadowRoot!
       const handler = (e: Event) => {
-        const v = (e.target as HTMLInputElement | HTMLTextAreaElement).value;
-        setValue(v);
-        dispatch({ name: props.name, value: v });
-      };
-      root.addEventListener("input", handler);
-      return () => root.removeEventListener("input", handler);
-    }, [props.name]);
+        const v = (e.target as HTMLInputElement | HTMLTextAreaElement).value
+        setValue(v)
+        dispatch({ name: props.name, value: v })
+      }
+      root.addEventListener("input", handler)
+      return () => root.removeEventListener("input", handler)
+    }, [props.name])
 
-    const cls = "w-full border border-border bg-transparent px-4 py-3 font-sans text-sm text-ink transition-colors outline-none focus:border-accent";
+    const cls =
+      "w-full border border-border bg-transparent px-4 py-3 font-sans text-sm text-ink transition-colors outline-none focus:border-accent"
     const inputEl =
       props.rows > 0
         ? `<textarea data-field="${props.name}" class="${cls}" rows="${props.rows}">${value}</textarea>`
-        : `<input data-field="${props.name}" type="${props.type}" value="${value}" class="${cls}" />`;
+        : `<input data-field="${props.name}" type="${props.type}" value="${value}" class="${cls}" />`
 
     return `
       <div>
         <label class="block font-sans text-[10px] tracking-widest uppercase text-ink-muted mb-2">${props.label}</label>
         ${inputEl}
-      </div>`;
+      </div>`
   },
-);
-export default FormField;
+)
+export default FormField

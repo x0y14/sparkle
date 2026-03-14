@@ -579,7 +579,10 @@ describe("defineElement", () => {
   })
 
   test("JSON.parse strips constructor key", () => {
-    const result = coerceValue('{"constructor": {"prototype": {"polluted": true}}, "ok": 1}', Object)
+    const result = coerceValue(
+      '{"constructor": {"prototype": {"polluted": true}}, "ok": 1}',
+      Object,
+    )
     expect(result.ok).toBe(true)
     if (result.ok) {
       expect(result.value).toEqual({ ok: 1 })
@@ -606,7 +609,7 @@ describe("defineElement", () => {
   })
 
   test("JSON.parse works normally for arrays", () => {
-    const result = coerceValue('[1, 2, 3]', Array)
+    const result = coerceValue("[1, 2, 3]", Array)
     expect(result.ok).toBe(true)
     if (result.ok) {
       expect(result.value).toEqual([1, 2, 3])

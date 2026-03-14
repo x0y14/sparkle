@@ -2,11 +2,11 @@
   "name": "@blask/monorepo",
   "version": "0.1.0",
   "private": true,
-  "type": "module",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/x0y14/blask.git"
   },
+  "type": "module",
   "scripts": {
     "build": "pnpm -r --filter './packages/*' --stream run build",
     "release": "pnpm run build && pnpm -r --filter './packages/*' publish",

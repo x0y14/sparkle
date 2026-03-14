@@ -2,12 +2,15 @@
   "name": "@blask/core",
   "version": "0.0.1",
   "license": "MIT",
-  "type": "module",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/x0y14/blask.git",
     "directory": "packages/core"
   },
+  "files": [
+    "dist"
+  ],
+  "type": "module",
   "main": "src/index.ts",
   "types": "src/index.ts",
   "exports": {
@@ -16,17 +19,16 @@
       "types": "./src/index.ts"
     }
   },
-  "files": ["dist"],
   "publishConfig": {
     "access": "public",
-    "main": "./dist/index.js",
-    "types": "./dist/index.d.ts",
     "exports": {
       ".": {
         "types": "./dist/index.d.ts",
         "import": "./dist/index.js"
       }
-    }
+    },
+    "main": "./dist/index.js",
+    "types": "./dist/index.d.ts"
   },
   "scripts": {
     "build": "tsc -p tsconfig.build.json",

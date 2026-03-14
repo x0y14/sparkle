@@ -1,4 +1,4 @@
-import { defineElement, css } from "@blask/core";
+import { defineElement, css } from "@blask/core"
 
 const ProductCard = defineElement(
   {
@@ -13,7 +13,7 @@ const ProductCard = defineElement(
 :host { @apply block overflow-hidden rounded-lg rounded-br-2xl; }`,
   },
   (props) => {
-    const priceStr = (props.price ?? 0).toLocaleString("ja-JP");
+    const priceStr = (props.price ?? 0).toLocaleString("ja-JP")
     return `
       <a href="/products/${props.productId}" class="group block bg-surface-card no-underline color-inherit rounded-lg rounded-br-2xl transition-shadow duration-300 hover:shadow-sm">
         <div class="overflow-hidden aspect-square bg-surface-warm">
@@ -24,7 +24,7 @@ const ProductCard = defineElement(
           <p class="font-display text-lg font-400 tracking-tight text-ink">¥${priceStr}</p>
         </div>
       </a>
-    `;
+    `
   },
-);
-export default ProductCard;
+)
+export default ProductCard

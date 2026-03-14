@@ -150,9 +150,7 @@ describe("blaskVitePlugin", () => {
     const plugin = blaskVitePlugin({
       unoConfig: {
         presets: [],
-        rules: [
-          [/^inject-(.+)$/, ([, d]) => ({ content: `"\${${d}}"` })],
-        ],
+        rules: [[/^inject-(.+)$/, ([, d]) => ({ content: `"\${${d}}"` })]],
       },
     })
     await (plugin as any).buildStart?.()

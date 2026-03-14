@@ -1,9 +1,5 @@
 export default (element: HTMLElement) => {
-  return async (
-    _Component: any,
-    props: Record<string, unknown>,
-    _slotted: Record<string, any>,
-  ) => {
+  return async (_Component: any, props: Record<string, unknown>, _slotted: Record<string, any>) => {
     const component = (element.firstElementChild as HTMLElement) ?? element
     const schema = (component.constructor as any)?._propsSchema
     const hasSchema =
