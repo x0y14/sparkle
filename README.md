@@ -218,8 +218,8 @@ const MyComponent = defineElement(
 
 ## Packages
 
-| Package        | Description                                                                        |
-| -------------- | ---------------------------------------------------------------------------------- |
+| Package          | Description                                                                        |
+| ---------------- | ---------------------------------------------------------------------------------- |
 | `@sparkio/core`  | Hooks, component definition, DOM morphing, Declarative Shadow DOM SSR, Context API |
 | `@sparkio/vite`  | Vite plugin — UnoCSS injection into Shadow DOM, `@apply` resolution, HMR           |
 | `@sparkio/astro` | Astro integration — server-side renderer, client-side hydration, DSD polyfill      |
