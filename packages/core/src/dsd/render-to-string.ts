@@ -51,7 +51,7 @@ function buildTemplateAttrs(attrs: DSDAttributes): string {
   return s
 }
 
-const VALID_TAG_RE = /^[a-z][a-z0-9]*(-[a-z0-9]+)+$/
+const VALID_TAG_RE = /^[a-z][a-z0-9._-]*-[a-z0-9._-]*$/
 const VALID_ATTR_RE = /^[a-z_][a-z0-9_-]*$/i
 
 export function renderToString(

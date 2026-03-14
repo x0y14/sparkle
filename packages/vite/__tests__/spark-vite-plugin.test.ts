@@ -148,15 +148,19 @@ describe("sparkleVitePlugin", () => {
 
   test("transform: CSS containing ${ is escaped in placeholder replacement", async () => {
     const plugin = sparkleVitePlugin({
-      unoConfig: { presets: [] },
+      unoConfig: {
+        presets: [],
+        rules: [
+          [/^inject-(.+)$/, ([, d]) => ({ content: `"\${${d}}"` })],
+        ],
+      },
     })
     await (plugin as any).buildStart?.()
     const transform = plugin.transform as Function
-    const code = 'const css = `@unocss-placeholder`;'
+    const code = 'const css = `@unocss-placeholder`;\n<div class="inject-alert(1)"></div>'
     const result = await transform(code, "test.ts")
-    if (result) {
-      expect(result.code).not.toMatch(/(?<!\\)\$\{alert/)
-    }
+    expect(result).not.toBeNull()
+    expect(result.code).not.toMatch(/(?<!\\)\$\{/)
   })
 
   test("handleHotUpdate replaces CSS_PLACEHOLDER in ctx.read", async () => {
