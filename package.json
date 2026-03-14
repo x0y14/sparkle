@@ -17,5 +17,9 @@
     "oxlint": "^1.55.0",
     "typescript": "^5.7.0",
     "vitest": "^3.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/x0y14/blask.git"
   }
 }
