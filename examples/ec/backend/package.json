@@ -1,5 +1,5 @@
 {
-  "name": "@sparkle-ec/backend",
+  "name": "@examples/ec-backend",
   "version": "0.0.1",
   "private": true,
   "type": "module",
