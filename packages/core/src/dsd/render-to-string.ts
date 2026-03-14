@@ -77,6 +77,8 @@ export function renderToString(
   for (const [key, value] of Object.entries(props)) {
     const attrName = camelToKebab(key)
     if (!VALID_ATTR_RE.test(attrName)) continue
+    // Prevent SSR XSS via event-handler attributes like onclick/onload, etc.
+    if (/^on/i.test(attrName)) continue
     if (value === false || value == null) continue
     if (value === true) {
       attrs += ` ${attrName}`
