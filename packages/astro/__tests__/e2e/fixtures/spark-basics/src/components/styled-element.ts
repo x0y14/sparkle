@@ -1,4 +1,4 @@
-import { defineElement } from "@sparkle/core";
+import { defineElement } from "@sparkle/core"
 
 export const StyledElement = defineElement(
   {
@@ -11,4 +11,4 @@ export const StyledElement = defineElement(
     // CSS カスタムプロパティは shadow boundary を越えて継承される（CSS 仕様）
     // ホスト要素の style="--primary: rgb(255,0,0)" から var(--primary) が解決される
     `<p id="styled-text" style="color: var(--primary, black)">Themed</p>`,
-);
+)

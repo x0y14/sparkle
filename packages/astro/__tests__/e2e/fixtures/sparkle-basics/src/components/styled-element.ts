@@ -1,4 +1,4 @@
-import { defineElement, css } from "@sparkle/core";
+import { defineElement, css } from "@sparkle/core"
 
 const StyledElement = defineElement(
   {
@@ -10,8 +10,8 @@ const StyledElement = defineElement(
     `,
   },
   () => {
-    return `<span id="styled-text">styled</span>`;
+    return `<span id="styled-text">styled</span>`
   },
-);
+)
 
-export default StyledElement;
+export default StyledElement

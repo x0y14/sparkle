@@ -1,13 +1,21 @@
 {
-  "name": "sparkle-monorepo",
+  "name": "root",
   "private": true,
   "type": "module",
   "scripts": {
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "lint": "oxlint .",
+    "lint:fix": "oxlint --fix .",
+    "fmt:check": "oxfmt .",
+    "fmt": "oxfmt --write .",
+    "typecheck": "pnpm -r --parallel --stream run typecheck",
+    "test:e2e": "pnpm -r --stream run test:e2e"
   },
   "devDependencies": {
-    "vitest": "^3.0.0",
-    "typescript": "^5.7.0"
+    "oxfmt": "^0.40.0",
+    "oxlint": "^1.55.0",
+    "typescript": "^5.7.0",
+    "vitest": "^3.0.0"
   }
 }

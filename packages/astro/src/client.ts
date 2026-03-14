@@ -8,13 +8,13 @@ export default (element: HTMLElement) => {
   ) => {
     // Astro passes the <astro-island> wrapper as `element`.
     // The actual Sparkle component is its first child element.
-    const component = (element.firstElementChild as HTMLElement) ?? element;
+    const component = (element.firstElementChild as HTMLElement) ?? element
 
     // Set props that may not be reflected as attributes (e.g., Object/Array)
     for (const [key, value] of Object.entries(props)) {
       if (key in component) {
-        (component as any)[key] = value;
+        ;(component as any)[key] = value
       }
     }
-  };
-};
+  }
+}

@@ -1,86 +1,84 @@
-import type { Plugin } from "vite";
-import { createGenerator, type UserConfig, type UnoGenerator } from "@unocss/core";
+import type { Plugin } from "vite"
+import { createGenerator, type UserConfig, type UnoGenerator } from "@unocss/core"
 
-const CSS_PLACEHOLDER = "@unocss-placeholder";
-const VIRTUAL_ID = "virtual:sparkle/uno.css";
-const RESOLVED_VIRTUAL_ID = "\0virtual:sparkle/uno.css";
+const CSS_PLACEHOLDER = "@unocss-placeholder"
+const VIRTUAL_ID = "virtual:sparkle/uno.css"
+const RESOLVED_VIRTUAL_ID = "\0virtual:sparkle/uno.css"
 
 export type SparkleVitePluginOptions = {
-  unoConfig?: UserConfig;
-  preflights?: boolean;
-  safelist?: boolean;
-};
+  unoConfig?: UserConfig
+  preflights?: boolean
+  safelist?: boolean
+}
 
 async function resolveApply(code: string, uno: UnoGenerator): Promise<string> {
-  const re = /@apply\s+['"]?([^;}"'\n]+)['"]?\s*;?/g;
-  const matches = [...code.matchAll(re)];
-  if (matches.length === 0) return code;
-  let result = code;
+  const re = /@apply\s+['"]?([^;}"'\n]+)['"]?\s*;?/g
+  const matches = [...code.matchAll(re)]
+  if (matches.length === 0) return code
+  let result = code
   for (const m of matches) {
-    const classes = m[1].trim();
-    const fakeHtml = `<div class="${classes}"></div>`;
-    const { css } = await uno.generate(fakeHtml, { preflights: false, safelist: false });
+    const classes = m[1].trim()
+    const fakeHtml = `<div class="${classes}"></div>`
+    const { css } = await uno.generate(fakeHtml, { preflights: false, safelist: false })
     // extract declarations from generated CSS rules
-    const decls = [...css.matchAll(/\{([^}]+)\}/g)]
-      .map((d) => d[1].trim())
-      .join(" ");
-    result = result.replace(m[0], decls);
+    const decls = [...css.matchAll(/\{([^}]+)\}/g)].map((d) => d[1].trim()).join(" ")
+    result = result.replace(m[0], decls)
   }
-  return result;
+  return result
 }
 
 export function sparkleVitePlugin(options?: SparkleVitePluginOptions): Plugin {
-  let uno: UnoGenerator;
-  const preflights = options?.preflights ?? true;
-  const safelist = options?.safelist ?? true;
+  let uno: UnoGenerator
+  const preflights = options?.preflights ?? true
+  const safelist = options?.safelist ?? true
 
   return {
     name: "sparkle:vite",
     enforce: "pre",
 
     async buildStart() {
-      uno = await createGenerator(options?.unoConfig ?? {});
+      uno = await createGenerator(options?.unoConfig ?? {})
     },
 
     resolveId(id: string) {
-      if (id === VIRTUAL_ID) return RESOLVED_VIRTUAL_ID;
+      if (id === VIRTUAL_ID) return RESOLVED_VIRTUAL_ID
     },
 
     async load(id: string) {
-      if (id !== RESOLVED_VIRTUAL_ID) return;
-      if (!uno) uno = await createGenerator(options?.unoConfig ?? {});
-      const { css } = await uno.generate([], { preflights, safelist });
-      const escaped = css.replace(/\\/g, "\\\\").replace(/`/g, "\\`");
-      return `const sheet = new CSSStyleSheet();\nsheet.replaceSync(\`${escaped}\`);\nexport default sheet;\n`;
+      if (id !== RESOLVED_VIRTUAL_ID) return
+      if (!uno) uno = await createGenerator(options?.unoConfig ?? {})
+      const { css } = await uno.generate([], { preflights, safelist })
+      const escaped = css.replace(/\\/g, "\\\\").replace(/`/g, "\\`")
+      return `const sheet = new CSSStyleSheet();\nsheet.replaceSync(\`${escaped}\`);\nexport default sheet;\n`
     },
 
     async transform(code: string, _id: string) {
-      if (!code.includes(CSS_PLACEHOLDER)) return null;
-      if (!uno) uno = await createGenerator(options?.unoConfig ?? {});
-      const { css } = await uno.generate(code, { preflights, safelist });
-      const escaped = css.replace(/\\/g, "\\\\").replace(/`/g, "\\`");
-      let result = code.replace(CSS_PLACEHOLDER, escaped);
-      result = await resolveApply(result, uno);
+      if (!code.includes(CSS_PLACEHOLDER)) return null
+      if (!uno) uno = await createGenerator(options?.unoConfig ?? {})
+      const { css } = await uno.generate(code, { preflights, safelist })
+      const escaped = css.replace(/\\/g, "\\\\").replace(/`/g, "\\`")
+      let result = code.replace(CSS_PLACEHOLDER, escaped)
+      result = await resolveApply(result, uno)
       return {
         code: result,
         map: null,
-      };
+      }
     },
 
     handleHotUpdate(ctx) {
-      const read = ctx.read;
+      const read = ctx.read
       ctx.read = async () => {
-        const code = await read();
-        if (!code.includes(CSS_PLACEHOLDER)) return code;
-        if (!uno) uno = await createGenerator(options?.unoConfig ?? {});
-        const { css } = await uno.generate(code, { preflights, safelist });
-        const escaped = css.replace(/\\/g, "\\\\").replace(/`/g, "\\`");
-        let processed = code.replace(CSS_PLACEHOLDER, escaped);
-        processed = await resolveApply(processed, uno);
-        return processed;
-      };
+        const code = await read()
+        if (!code.includes(CSS_PLACEHOLDER)) return code
+        if (!uno) uno = await createGenerator(options?.unoConfig ?? {})
+        const { css } = await uno.generate(code, { preflights, safelist })
+        const escaped = css.replace(/\\/g, "\\\\").replace(/`/g, "\\`")
+        let processed = code.replace(CSS_PLACEHOLDER, escaped)
+        processed = await resolveApply(processed, uno)
+        return processed
+      }
       // Return undefined to let Vite perform default HMR handling
-      return;
+      return
     },
-  };
+  }
 }

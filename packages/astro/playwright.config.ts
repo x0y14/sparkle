@@ -1,10 +1,10 @@
-import { defineConfig } from "@playwright/test";
+import { defineConfig } from "@playwright/test"
 
 // Vite が非TTY環境で stdout.clearLine を呼び出してエラーになるのを防ぐ
 // 参照: refs/astro/packages/astro/playwright.config.js:4-5
-process.stdout.isTTY = false;
+process.stdout.isTTY = false
 
-const PORT = 4399; // 4321 は他プロジェクトと衝突する可能性があるため別ポートを使用
+const PORT = 4399 // 4321 は他プロジェクトと衝突する可能性があるため別ポートを使用
 
 export default defineConfig({
   testDir: "./__tests__/e2e",
@@ -25,4 +25,4 @@ export default defineConfig({
     timeout: 30_000,
     reuseExistingServer: false,
   },
-});
+})

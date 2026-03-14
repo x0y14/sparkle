@@ -18,18 +18,18 @@
   "dependencies": {
     "@unocss/core": "^66.0.0"
   },
+  "devDependencies": {
+    "typescript": "^5.7.0",
+    "vite": "^6.0.0",
+    "vitest": "^3.0.0"
+  },
   "peerDependencies": {
-    "vite": ">=5.0.0",
-    "unocss": ">=60.0.0"
+    "unocss": ">=60.0.0",
+    "vite": ">=5.0.0"
   },
   "peerDependenciesMeta": {
     "unocss": {
       "optional": true
     }
-  },
-  "devDependencies": {
-    "typescript": "^5.7.0",
-    "vitest": "^3.0.0",
-    "vite": "^6.0.0"
   }
 }

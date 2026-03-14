@@ -1,6 +1,6 @@
-import { describe, test, expect, beforeEach, vi } from "vitest";
-import { setCurrent, clear, type HookContext } from "../../src/hooks/context.js";
-import { useHost } from "../../src/hooks/use-host.js";
+import { describe, test, expect, beforeEach, vi } from "vitest"
+import { setCurrent, clear, type HookContext } from "../../src/hooks/context.js"
+import { useHost } from "../../src/hooks/use-host.js"
 
 function createTestContext(overrides?: Partial<HookContext>): HookContext {
   return {
@@ -8,38 +8,38 @@ function createTestContext(overrides?: Partial<HookContext>): HookContext {
     hooks: [],
     update: vi.fn(),
     ...overrides,
-  };
+  }
 }
 
 function renderWith<T>(ctx: HookContext, fn: () => T): T {
-  setCurrent(ctx);
+  setCurrent(ctx)
   try {
-    return fn();
+    return fn()
   } finally {
-    clear();
+    clear()
   }
 }
 
 describe("useHost", () => {
   beforeEach(() => {
-    clear();
-  });
+    clear()
+  })
 
   test("returns { current: hostElement }", () => {
-    const host = document.createElement("div");
-    const ctx = createTestContext({ host });
-    const ref = renderWith(ctx, () => useHost());
-    expect(ref.current).toBe(host);
-  });
+    const host = document.createElement("div")
+    const ctx = createTestContext({ host })
+    const ref = renderWith(ctx, () => useHost())
+    expect(ref.current).toBe(host)
+  })
 
   test("throws outside render context", () => {
-    expect(() => useHost()).toThrow("Hook called outside of component render");
-  });
+    expect(() => useHost()).toThrow("Hook called outside of component render")
+  })
 
   test("same ref across renders", () => {
-    const ctx = createTestContext();
-    const ref1 = renderWith(ctx, () => useHost());
-    const ref2 = renderWith(ctx, () => useHost());
-    expect(ref1).toBe(ref2);
-  });
-});
+    const ctx = createTestContext()
+    const ref1 = renderWith(ctx, () => useHost())
+    const ref2 = renderWith(ctx, () => useHost())
+    expect(ref1).toBe(ref2)
+  })
+})
