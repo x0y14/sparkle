@@ -49,7 +49,10 @@ export function sparkioVitePlugin(options?: SparkioVitePluginOptions): Plugin {
       if (!uno) uno = await createGenerator(options?.unoConfig ?? {})
       const { css } = await uno.generate([], { preflights, safelist })
       const escaped = css.replace(/\\/g, "\\\\").replace(/`/g, "\\`").replace(/\$/g, "\\$")
-      return `const sheet = new CSSStyleSheet();\nsheet.replaceSync(\`${escaped}\`);\nexport default sheet;\n`
+      return {
+        code: `const sheet = new CSSStyleSheet();\nsheet.replaceSync(\`${escaped}\`);\nexport default sheet;\n`,
+        map: null,
+      }
     },
 
     async transform(code: string, _id: string) {

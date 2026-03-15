@@ -62,8 +62,8 @@ describe("sparkioVitePlugin", () => {
     await (plugin as any).buildStart?.()
     const load = plugin.load as Function
     const result = await load("\0virtual:sparkio/uno.css")
-    expect(result).toContain("CSSStyleSheet")
-    expect(result).toContain("replaceSync")
+    expect(result).toEqual({ code: expect.stringContaining("CSSStyleSheet"), map: null })
+    expect(result.code).toContain("replaceSync")
   })
 
   test("load: ignores other ids", async () => {
@@ -143,7 +143,7 @@ describe("sparkioVitePlugin", () => {
     const load = plugin.load as Function
     const result = await load("\0virtual:sparkio/uno.css")
     // ${ がエスケープされて \${ になっているべき
-    expect(result).not.toMatch(/(?<!\\)\$\{/)
+    expect(result.code).not.toMatch(/(?<!\\)\$\{/)
   })
 
   test("transform: CSS containing ${ is escaped in placeholder replacement", async () => {
