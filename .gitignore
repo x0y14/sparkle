@@ -12,3 +12,7 @@ node_modules/
 test-results/
 
 AGENTS.md
+
+*.log
+
+storybook-static
