@@ -15,4 +15,13 @@ describe("hexToRGBA", () => {
       128 / 255, 128 / 255, 128 / 255, 1,
     ])
   })
+
+  it("小文字 hex を正しくパースする", () => {
+    expect(hexToRGBA("#ff0000")).toEqual([1, 0, 0, 1])
+  })
+
+  it("短い hex 文字列でエラーにならない", () => {
+    // Behavior: NaN for missing components, should not throw
+    expect(() => hexToRGBA("#FF")).not.toThrow()
+  })
 })

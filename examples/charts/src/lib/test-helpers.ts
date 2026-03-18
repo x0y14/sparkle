@@ -20,7 +20,7 @@ import { normalizeConfig } from "./config/normalize"
 export function createMockGPUDevice(): GPUContext {
   const device = {
     createBuffer(desc: GPUBufferDescriptor): GPUBuffer {
-      const buf = { size: desc.size, usage: desc.usage, mapState: "unmapped", label: desc.label } as unknown as GPUBuffer
+      const buf = { size: desc.size, usage: desc.usage, mapState: "unmapped", label: desc.label, destroy() {} } as unknown as GPUBuffer
       return buf
     },
     createShaderModule(_desc: GPUShaderModuleDescriptor) {

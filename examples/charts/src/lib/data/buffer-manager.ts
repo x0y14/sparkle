@@ -51,12 +51,18 @@ export class BufferManager {
   private reallocate(minBytes: number): void {
     const newCap = nextPowerOf2(align4(minBytes))
     const newBuf = this.device.createBuffer({ size: newCap, usage: this.usage })
+    if (this.buffer) {
+      this.buffer.destroy()
+    }
     this.buffer = newBuf
     this.capacity = newCap
-    this.usedBytes = 0
+    // usedBytes is NOT reset — callers (write/append) manage it
   }
 
   destroy(): void {
+    if (this.buffer) {
+      this.buffer.destroy()
+    }
     this.buffer = null
     this.capacity = 0
     this.usedBytes = 0

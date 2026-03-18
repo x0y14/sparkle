@@ -3,10 +3,20 @@ import type { ZoomWindow } from "../types"
 export class ZoomState {
   startPct: number
   endPct: number
+  private listeners: (() => void)[] = []
 
   constructor(start: number = 0, end: number = 100) {
     this.startPct = start
     this.endPct = end
+  }
+
+  onZoomChange(cb: () => void): () => void {
+    this.listeners.push(cb)
+    return () => { const i = this.listeners.indexOf(cb); if (i >= 0) this.listeners.splice(i, 1) }
+  }
+
+  private notify(): void {
+    for (const cb of this.listeners) cb()
   }
 
   getWindow(): ZoomWindow {
@@ -20,6 +30,7 @@ export class ZoomState {
     this.startPct = anchorPct - anchorRatio * newSpan
     this.endPct = this.startPct + newSpan
     this.clamp()
+    this.notify()
   }
 
   pan(deltaPct: number): void {
@@ -27,12 +38,14 @@ export class ZoomState {
     this.startPct += deltaPct
     this.endPct = this.startPct + span
     this.clamp()
+    this.notify()
   }
 
   setWindow(startPct: number, endPct: number): void {
     this.startPct = startPct
     this.endPct = endPct
     this.clamp()
+    this.notify()
   }
 
   toDomain(domainMin: number, domainMax: number): { visibleMin: number; visibleMax: number } {

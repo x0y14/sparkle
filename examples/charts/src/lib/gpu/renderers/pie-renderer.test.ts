@@ -22,6 +22,32 @@ describe("computeSlices", () => {
     const slices = computeSlices(series)
     expect(slices[0].innerRadius).toBe(0.5)
   })
+
+  it("4均等スライスの角度合計が 2PI になる", () => {
+    const series = makeNormalizedPieSeries([25, 25, 25, 25])
+    const slices = computeSlices(series)
+    const totalAngle = slices.reduce((sum, s) => sum + (s.endAngle - s.startAngle), 0)
+    expect(totalAngle).toBeCloseTo(Math.PI * 2, 5)
+  })
+
+  it("空シリーズで空配列を返す", () => {
+    const slices = computeSlices([])
+    expect(slices).toHaveLength(0)
+  })
+
+  it("合計0のデータで空配列を返す", () => {
+    const series = makeNormalizedPieSeries([0, 0, 0])
+    const slices = computeSlices(series)
+    expect(slices).toHaveLength(0)
+  })
+
+  it("単一値で完全円スライスを返す", () => {
+    const series = makeNormalizedPieSeries([100])
+    const slices = computeSlices(series)
+    expect(slices).toHaveLength(1)
+    const span = slices[0].endAngle - slices[0].startAngle
+    expect(span).toBeCloseTo(Math.PI * 2, 5)
+  })
 })
 
 describe("PieRenderer", () => {

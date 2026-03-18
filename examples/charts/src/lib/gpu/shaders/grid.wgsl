@@ -22,14 +22,17 @@ fn vs_main(@builtin(vertex_index) vid: u32, @builtin(instance_index) iid: u32) -
   let p0 = vec2<f32>(line.x, line.y);
   let p1 = vec2<f32>(line.z, line.w);
 
+  let dir = normalize(p1 - p0);
+  let perp = vec2<f32>(-dir.y, dir.x) * 0.5;
+
   var pos: vec2<f32>;
   switch vid % 6u {
-    case 0u: { pos = p0 + vec2<f32>(-0.5, 0.0); }
-    case 1u: { pos = p0 + vec2<f32>(0.5, 0.0); }
-    case 2u: { pos = p1 + vec2<f32>(-0.5, 0.0); }
-    case 3u: { pos = p0 + vec2<f32>(0.5, 0.0); }
-    case 4u: { pos = p1 + vec2<f32>(0.5, 0.0); }
-    case 5u: { pos = p1 + vec2<f32>(-0.5, 0.0); }
+    case 0u: { pos = p0 - perp; }
+    case 1u: { pos = p0 + perp; }
+    case 2u: { pos = p1 - perp; }
+    case 3u: { pos = p0 + perp; }
+    case 4u: { pos = p1 + perp; }
+    case 5u: { pos = p1 - perp; }
     default: { pos = p0; }
   }
 

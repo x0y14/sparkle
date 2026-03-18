@@ -21,6 +21,22 @@ describe("hitTestBinarySearch", () => {
     const emptyAcc = createAccessor([])
     expect(hitTestBinarySearch(0, 0, emptyAcc, 50, plot, 0, 1, 0, 1)).toBeNull()
   })
+
+  it("先頭要素にヒットする", () => {
+    const idx = hitTestBinarySearch(0, 0, acc, 50, plot, 0, 990, 0, 495)
+    expect(idx).toBe(0)
+  })
+
+  it("末尾要素にヒットする", () => {
+    const idx = hitTestBinarySearch(990, 495, acc, 50, plot, 0, 990, 0, 495)
+    expect(idx).toBe(99)
+  })
+
+  it("maxDistancePx 外なら null", () => {
+    // Far away from any point
+    const idx = hitTestBinarySearch(500, -10000, acc, 5, plot, 0, 990, 0, 495)
+    expect(idx).toBeNull()
+  })
 })
 
 describe("hitTestBar", () => {
@@ -42,4 +58,9 @@ describe("hitTestPie", () => {
   it("範囲外→null", () => { expect(hitTestPie(150, 0, 0, 0, slices)).toBe(null) })
   it("右下→スライス0", () => { expect(hitTestPie(50, 50, 0, 0, slices)).toBe(0) })
   it("右上→スライス1 (atan2で2PI近くに正規化)", () => { expect(hitTestPie(50, -50, 0, 0, slices)).toBe(1) })
+
+  it("角度境界上のポイントがヒットする", () => {
+    // angle === 0 is exactly the start of slice 0
+    expect(hitTestPie(50, 0, 0, 0, slices)).toBe(0)
+  })
 })

@@ -54,4 +54,28 @@ describe("normalizeConfig", () => {
     expect(n.xAxis.min).toBe(0)
     expect(n.xAxis.max).toBe(1)
   })
+
+  it("OHLC データ形式が正しく検出・正規化される", () => {
+    const cfg: ChartConfig = {
+      type: "candlestick",
+      series: [{ data: [{ time: 100, open: 10, high: 15, low: 8, close: 12 }] }],
+    }
+    const n = normalizeConfig(cfg)
+    expect(n.series[0].accessor.getOpen(0)).toBe(10)
+    expect(n.series[0].accessor.getHigh(0)).toBe(15)
+    expect(n.series[0].accessor.getLow(0)).toBe(8)
+    expect(n.series[0].accessor.getClose(0)).toBe(12)
+  })
+
+  it("samplingThreshold を超えるデータがサンプリングされる", () => {
+    const data = Array.from({ length: 200 }, (_, i) => ({ x: i, y: Math.sin(i) }))
+    const cfg: ChartConfig = {
+      type: "line",
+      series: [{ data }],
+      samplingThreshold: 50,
+    }
+    const n = normalizeConfig(cfg)
+    expect(n.series[0].sampledIndices).not.toBeNull()
+    expect(n.series[0].sampledIndices!.length).toBeLessThanOrEqual(50)
+  })
 })

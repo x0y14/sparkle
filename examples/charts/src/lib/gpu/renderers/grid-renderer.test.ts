@@ -13,6 +13,23 @@ describe("computeGridLines", () => {
     expect(lines.length).toBeGreaterThan(0)
     expect(lines.length % 4).toBe(0)
   })
+
+  it("水平線と垂直線の両方を生成する", () => {
+    const scaleX = createLinearScale(0, 200, -1, 1)
+    const scaleY = createLinearScale(0, 200, -1, 1)
+    const plotRect = { x: 0, y: 0, width: 800, height: 600 }
+    const lines = computeGridLines(scaleX, scaleY, plotRect, 800, 600, 5, 5)
+    // Parse lines into pairs
+    const verticalLines: number[] = []
+    const horizontalLines: number[] = []
+    for (let i = 0; i < lines.length; i += 4) {
+      const x0 = lines[i], y0 = lines[i + 1], x1 = lines[i + 2], y1 = lines[i + 3]
+      if (Math.abs(x0 - x1) < 0.001) verticalLines.push(x0)   // same x → vertical
+      if (Math.abs(y0 - y1) < 0.001) horizontalLines.push(y0)  // same y → horizontal
+    }
+    expect(verticalLines.length).toBeGreaterThan(0)
+    expect(horizontalLines.length).toBeGreaterThan(0)
+  })
 })
 
 describe("GridRenderer", () => {

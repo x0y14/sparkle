@@ -126,6 +126,49 @@ describe("RenderPassManager", () => {
     expect(spy.renderCalls.length).toBe(0)
   })
 
+  it("INTERACTION のみで mainRenderers と annotationRenderers はスキップされる", () => {
+    const gpu = createMockGPUDevice()
+    const rpm = new RenderPassManager(gpu, 4)
+    const mainSpy = createSpyRenderer()
+    const annotSpy = createSpyRenderer()
+    rpm.render(
+      800, 600, [mainSpy], [annotSpy], [],
+      DirtyFlag.INTERACTION,
+      { r: 1, g: 1, b: 1, a: 1 },
+    )
+    expect(mainSpy.renderCalls.length).toBe(0)
+    expect(annotSpy.renderCalls.length).toBe(0)
+  })
+
+  it("overlayRenderers の render が呼ばれる", () => {
+    const gpu = createMockGPUDevice()
+    const rpm = new RenderPassManager(gpu, 4)
+    const overlaySpy = createSpyRenderer()
+    rpm.render(
+      800, 600, [], [], [overlaySpy],
+      DirtyFlag.DATA | DirtyFlag.LAYOUT,
+      { r: 1, g: 1, b: 1, a: 1 },
+    )
+    expect(overlaySpy.renderCalls.length).toBe(1)
+  })
+
+  it("dirty=NONE で何も描画されない", () => {
+    const gpu = createMockGPUDevice()
+    const rpm = new RenderPassManager(gpu, 4)
+    const mainSpy = createSpyRenderer()
+    const annotSpy = createSpyRenderer()
+    const overlaySpy = createSpyRenderer()
+    rpm.render(
+      800, 600, [mainSpy], [annotSpy], [overlaySpy],
+      0,
+      { r: 1, g: 1, b: 1, a: 1 },
+    )
+    expect(mainSpy.renderCalls.length).toBe(0)
+    expect(annotSpy.renderCalls.length).toBe(0)
+    // overlayRenderers always run in pass 3 (but no pass2Texture → no blit, only overlay)
+    expect(overlaySpy.renderCalls.length).toBe(1)
+  })
+
   it("destroy が例外なく完了する", () => {
     const gpu = createMockGPUDevice()
     const rpm = new RenderPassManager(gpu, 4)

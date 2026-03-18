@@ -63,11 +63,15 @@ fn vs_main(@builtin(vertex_index) vid: u32, @builtin(instance_index) iid: u32) -
 fn fs_main(in: VertexOutput) -> @location(0) vec4<f32> {
   let slice = slices[in.sliceIdx];
   let dist = length(in.localPos);
-  var angle = atan2(in.localPos.y, in.localPos.x);
-  if angle < 0.0 { angle += 6.283185307; }
+  let angle = atan2(in.localPos.y, in.localPos.x); // [-PI, PI]
+
+  // Convert to relative angle from startAngle, normalized to [0, 2PI)
+  let span = slice.endAngle - slice.startAngle;
+  var relAngle = angle - slice.startAngle;
+  relAngle = relAngle - floor(relAngle / 6.283185307) * 6.283185307;
 
   let inRadius = step(slice.innerRadius, dist) * step(dist, slice.outerRadius);
-  let inAngle = step(slice.startAngle, angle) * step(angle, slice.endAngle);
+  let inAngle = step(0.0, relAngle) * step(relAngle, span);
 
   let edgeDist = min(dist - slice.innerRadius, slice.outerRadius - dist);
   let alpha = smoothstep(0.0, 1.0, edgeDist) * inRadius * inAngle;

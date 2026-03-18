@@ -36,4 +36,10 @@ describe("buildTransformMatrix", () => {
     expect(x0).toBeCloseTo(-0.75)
     expect(x1).toBeCloseTo(0.75)
   })
+
+  it("domainMin === domainMax でゼロ除算しない", () => {
+    const m = buildTransformMatrix(5, 5, 0, 0,
+      { x: 0, y: 0, width: 800, height: 600 }, 800, 600, 0, 0)
+    expect(m.every(v => isFinite(v))).toBe(true)
+  })
 })

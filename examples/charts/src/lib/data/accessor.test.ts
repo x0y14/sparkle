@@ -58,3 +58,16 @@ describe("createAccessor - OHLC", () => {
     expect(acc.getBoundsY()).toEqual({ min: 8, max: 20 })
   })
 })
+
+describe("createAccessor - NaN handling", () => {
+  it("hasNull が NaN を含む PointObject で true を返す", () => {
+    const acc = createAccessor([{ x: 1, y: NaN }])
+    expect(acc.hasNull(0)).toBe(true)
+  })
+
+  it("getBoundsX/Y が NaN を除外する", () => {
+    const acc = createAccessor([{ x: NaN, y: 1 }, { x: 2, y: 3 }])
+    expect(acc.getBoundsX()).toEqual({ min: 2, max: 2 })
+    expect(acc.getBoundsY()).toEqual({ min: 1, max: 3 })
+  })
+})

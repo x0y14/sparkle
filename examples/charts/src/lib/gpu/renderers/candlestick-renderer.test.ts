@@ -34,6 +34,25 @@ describe("computeCandlestickBars", () => {
     const bars = computeCandlestickBars(series, scaleX, scaleY, 0.6, [0, 0.7, 0], [0.8, 0, 0])
     expect(bars).toHaveLength(1)
   })
+
+  it("open===close のとき正しいバーを返す（十字線）", () => {
+    const series = makeNormalizedOHLCSeries([
+      { time: 0, open: 100, high: 110, low: 90, close: 100 },
+    ])
+    const scaleX = createLinearScale(0, 0, -1, 1)
+    const scaleY = createLinearScale(90, 110, -1, 1)
+    const bars = computeCandlestickBars(series, scaleX, scaleY, 0.6, [0, 0.7, 0], [0.8, 0, 0])
+    expect(bars).toHaveLength(1)
+    expect(bars[0].open).toBeCloseTo(bars[0].close)
+  })
+
+  it("空の OHLC シリーズでエラーにならない", () => {
+    const series = makeNormalizedOHLCSeries([])
+    const scaleX = createLinearScale(0, 1, -1, 1)
+    const scaleY = createLinearScale(0, 1, -1, 1)
+    const bars = computeCandlestickBars(series, scaleX, scaleY, 0.6, [0, 0.7, 0], [0.8, 0, 0])
+    expect(bars).toHaveLength(0)
+  })
 })
 
 describe("CandlestickRenderer", () => {

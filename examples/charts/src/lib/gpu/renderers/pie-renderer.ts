@@ -71,14 +71,9 @@ export class PieRenderer implements ChartRenderer {
     const sliceData = new Float32Array(slices.length * 12)
     for (let i = 0; i < slices.length; i++) {
       const s = slices[i]
-      // Convert angles to 0..2π range for shader
-      let start = s.startAngle
-      let end = s.endAngle
-      // Normalize to 0..2π
-      while (start < 0) { start += Math.PI * 2; end += Math.PI * 2 }
-
-      sliceData[i * 12 + 0] = start
-      sliceData[i * 12 + 1] = end
+      // Pass raw angles — shader handles wrapping via relative angle comparison
+      sliceData[i * 12 + 0] = s.startAngle
+      sliceData[i * 12 + 1] = s.endAngle
       sliceData[i * 12 + 2] = s.innerRadius * radiusPx
       sliceData[i * 12 + 3] = s.outerRadius * radiusPx
       sliceData[i * 12 + 4] = s.r

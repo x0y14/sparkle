@@ -33,9 +33,18 @@ const SparkChart = defineElement(
           theme: props.theme as ChartConfig["theme"],
           ...(props.config as Partial<ChartConfig>),
         }
-        createChart(container, cfg).then((inst) => { chartRef.current = inst })
+        return createChart(container, cfg)
+      }).then((inst) => {
+        chartRef.current = inst
+      }).catch((err) => {
+        console.error("spark-chart init failed:", err)
+        initRef.current = false
       })
-      return () => { chartRef.current?.destroy(); chartRef.current = null }
+      return () => {
+        chartRef.current?.destroy()
+        chartRef.current = null
+        initRef.current = false
+      }
     }, [])
 
     useEffect(() => {

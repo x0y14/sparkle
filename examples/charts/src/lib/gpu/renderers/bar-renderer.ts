@@ -1,22 +1,19 @@
-import type { GPUContext, NormalizedSeries, LinearScale } from "../../types"
+import type { GPUContext, NormalizedSeries } from "../../types"
 import type { ChartRenderer, RenderUniforms } from "./base-renderer"
 import { BufferManager } from "../../data/buffer-manager"
 import { hexToRGBA } from "../../config/color"
-import { createLinearScale } from "../../scales/linear-scale"
 import barShader from "../shaders/bar.wgsl?raw"
 
 export interface BarRect {
-  clipX: number
-  clipY: number
-  clipWidth: number
-  clipHeight: number
+  dataX: number
+  dataY: number
+  dataWidth: number
+  dataHeight: number
   r: number; g: number; b: number; a: number
 }
 
 export function computeBarLayout(
   series: NormalizedSeries[],
-  scaleX: LinearScale,
-  scaleY: LinearScale,
 ): BarRect[] {
   const rects: BarRect[] = []
 
@@ -48,7 +45,7 @@ export function computeBarLayout(
     clusterIdx.set(s, slot++)
   }
 
-  const baseY = scaleY.map(Math.max(0, scaleY.domain[0]))
+  const baseY = Math.max(0, 0) // baseline at y=0 in data space
 
   for (const s of clustered) {
     const idx = clusterIdx.get(s)!
@@ -59,15 +56,16 @@ export function computeBarLayout(
     for (let i = 0; i < s.accessor.getCount(); i++) {
       const dataX = s.accessor.getX(i)
       const dataY = s.accessor.getY(i)
-      const left = scaleX.map(dataX + offset)
-      const right = scaleX.map(dataX + offset + categoryWidth)
-      const top = scaleY.map(dataY)
+      const left = dataX + offset
+      const width = categoryWidth
+      const top = dataY
+      const bottom = baseY
 
       rects.push({
-        clipX: left,
-        clipY: Math.min(top, baseY),
-        clipWidth: right - left,
-        clipHeight: Math.abs(top - baseY),
+        dataX: left,
+        dataY: Math.min(top, bottom),
+        dataWidth: width,
+        dataHeight: Math.abs(top - bottom),
         r: cr, g: cg, b: cb, a: ca,
       })
     }
@@ -103,16 +101,14 @@ export function computeBarLayout(
           negAccum.set(i, bottom)
         }
 
-        const left = scaleX.map(dataX + offset)
-        const right = scaleX.map(dataX + offset + categoryWidth)
-        const clipTop = scaleY.map(top)
-        const clipBottom = scaleY.map(bottom)
+        const left = dataX + offset
+        const width = categoryWidth
 
         rects.push({
-          clipX: left,
-          clipY: Math.min(clipTop, clipBottom),
-          clipWidth: right - left,
-          clipHeight: Math.abs(clipTop - clipBottom),
+          dataX: left,
+          dataY: Math.min(top, bottom),
+          dataWidth: width,
+          dataHeight: Math.abs(top - bottom),
           r: cr, g: cg, b: cb, a: ca,
         })
       }
@@ -145,36 +141,17 @@ export class BarRenderer implements ChartRenderer {
   prepare(gpu: GPUContext, series: NormalizedSeries[], uniforms: RenderUniforms): void {
     if (series.length === 0) return
 
-    // For bar charts, we need scales from uniforms.transformMatrix
-    // But we also need the original domain for computeBarLayout
-    // We'll extract from the series bounds
-    const allX: number[] = []
-    const allY: number[] = []
-    for (const s of series) {
-      for (let i = 0; i < s.accessor.getCount(); i++) {
-        allX.push(s.accessor.getX(i))
-        allY.push(s.accessor.getY(i))
-      }
-    }
-
-    const xMin = Math.min(...allX)
-    const xMax = Math.max(...allX)
-    const yMin = Math.min(0, Math.min(...allY))
-    const yMax = Math.max(...allY)
-    const scaleX = createLinearScale(xMin - 0.5, xMax + 0.5, -1, 1)
-    const scaleY = createLinearScale(yMin, yMax, -1, 1)
-
-    const rects = computeBarLayout(series, scaleX, scaleY)
+    const rects = computeBarLayout(series)
     this.barCount = rects.length
 
-    // Pack into storage buffer: 8 floats per bar
+    // Pack into storage buffer: 8 floats per bar (data-space coordinates)
     const barData = new Float32Array(rects.length * 8)
     for (let i = 0; i < rects.length; i++) {
       const r = rects[i]
-      barData[i * 8 + 0] = r.clipX
-      barData[i * 8 + 1] = r.clipY
-      barData[i * 8 + 2] = r.clipWidth
-      barData[i * 8 + 3] = r.clipHeight
+      barData[i * 8 + 0] = r.dataX
+      barData[i * 8 + 1] = r.dataY
+      barData[i * 8 + 2] = r.dataWidth
+      barData[i * 8 + 3] = r.dataHeight
       barData[i * 8 + 4] = r.r
       barData[i * 8 + 5] = r.g
       barData[i * 8 + 6] = r.b
@@ -182,15 +159,13 @@ export class BarRenderer implements ChartRenderer {
     }
     this.dataBuffer.write(barData)
 
-    // Uniform: identity transform (rects are already in clip space), canvas size, opacity
+    // Uniform: use shared transformMatrix for zoom/pan support
     const uniformData = new Float32Array(32)
-    // Identity matrix
-    uniformData[0] = 1; uniformData[5] = 1; uniformData[10] = 1; uniformData[15] = 1
+    uniformData.set(uniforms.transformMatrix, 0)
     uniformData[16] = uniforms.canvasWidth
     uniformData[17] = uniforms.canvasHeight
     uniformData[18] = 0 // lineWidth (unused)
     uniformData[19] = 1.0 // opacity
-    uniformData[20] = 0; uniformData[21] = 0; uniformData[22] = 0; uniformData[23] = 1 // color (unused, per-bar)
     gpu.device.queue.writeBuffer(this.uniformBuffer, 0, uniformData)
 
     if (!this.pipeline) {
