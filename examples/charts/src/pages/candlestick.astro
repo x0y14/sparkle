@@ -1,0 +1,29 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro"
+---
+<BaseLayout title="Candlestick Chart">
+  <div id="chart" style="width:800px;height:400px;"></div>
+  <script>
+    import { createChart } from "../lib/index"
+    function seededRandom(seed: number) {
+      return () => { seed = (seed * 16807 + 0) % 2147483647; return seed / 2147483647 }
+    }
+    const rng = seededRandom(123)
+    let price = 100
+    const data = Array.from({ length: 30 }, (_, i) => {
+      const open = price
+      const change = (rng() - 0.5) * 5
+      const close = open + change
+      const high = Math.max(open, close) + rng() * 3
+      const low = Math.min(open, close) - rng() * 3
+      price = close
+      return { time: i * 86400000, open, high, low, close }
+    })
+    const container = document.getElementById("chart")!
+    createChart(container, {
+      type: "candlestick",
+      series: [{ data, label: "OHLC" }],
+      title: "Candlestick Demo",
+    })
+  </script>
+</BaseLayout>

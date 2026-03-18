@@ -1,0 +1,18 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro"
+---
+<BaseLayout title="Bar Chart">
+  <div id="chart" style="width:800px;height:400px;"></div>
+  <script>
+    import { createChart } from "../lib/index"
+    const container = document.getElementById("chart")!
+    createChart(container, {
+      type: "bar",
+      series: [
+        { data: [{x:0,y:30},{x:1,y:50},{x:2,y:20},{x:3,y:45}], label: "2024" },
+        { data: [{x:0,y:40},{x:1,y:35},{x:2,y:55},{x:3,y:30}], label: "2025" },
+      ],
+      title: "Bar Chart Demo",
+    })
+  </script>
+</BaseLayout>

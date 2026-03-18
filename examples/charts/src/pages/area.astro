@@ -1,0 +1,18 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro"
+---
+<BaseLayout title="Area Chart">
+  <div id="chart" style="width:800px;height:400px;"></div>
+  <script>
+    import { createChart } from "../lib/index"
+    const container = document.getElementById("chart")!
+    createChart(container, {
+      type: "area",
+      series: [{
+        data: Array.from({ length: 80 }, (_, i) => ({ x: i, y: Math.sin(i * 0.08) * 40 + 60 })),
+        label: "Area",
+      }],
+      title: "Area Chart Demo",
+    })
+  </script>
+</BaseLayout>

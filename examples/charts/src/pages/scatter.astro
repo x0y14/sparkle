@@ -1,0 +1,23 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro"
+---
+<BaseLayout title="Scatter Plot">
+  <div id="chart" style="width:800px;height:400px;"></div>
+  <script>
+    import { createChart } from "../lib/index"
+    function seededRandom(seed: number) {
+      return () => { seed = (seed * 16807 + 0) % 2147483647; return seed / 2147483647 }
+    }
+    const rng = seededRandom(42)
+    const container = document.getElementById("chart")!
+    createChart(container, {
+      type: "scatter",
+      series: [{
+        data: Array.from({ length: 200 }, () => ({ x: rng() * 100, y: rng() * 100 })),
+        label: "Points",
+        pointRadius: 4,
+      }],
+      title: "Scatter Plot Demo",
+    })
+  </script>
+</BaseLayout>

@@ -22,6 +22,9 @@
     "typecheck": "pnpm -r --parallel --stream run typecheck",
     "test:e2e": "pnpm -r --stream run test:e2e"
   },
+  "pnpm": {
+    "onlyBuiltDependencies": ["puppeteer"]
+  },
   "devDependencies": {
     "oxfmt": "^0.40.0",
     "oxlint": "^1.55.0",

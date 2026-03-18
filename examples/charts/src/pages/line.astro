@@ -1,0 +1,18 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro"
+---
+<BaseLayout title="Line Chart">
+  <div id="chart" style="width:800px;height:400px;"></div>
+  <script>
+    import { createChart } from "../lib/index"
+    const data = Array.from({ length: 200 }, (_, i) => ({
+      x: i, y: Math.sin(i * 0.05) * 50 + 100 + Math.random() * 10,
+    }))
+    const container = document.getElementById("chart")!
+    createChart(container, {
+      type: "line",
+      series: [{ data, label: "Sin Wave", lineWidth: 2 }],
+      title: "Line Chart Demo",
+    })
+  </script>
+</BaseLayout>

@@ -3,3 +3,4 @@ packages:
   - "packages/astro/__tests__/e2e/fixtures/*"
   - "examples/ec/*"
   - "examples/ui"
+  - "examples/charts"

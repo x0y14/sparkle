@@ -1,0 +1,21 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro"
+---
+<BaseLayout title="Pie Chart">
+  <div id="chart" style="width:400px;height:400px;"></div>
+  <script>
+    import { createChart } from "../lib/index"
+    const container = document.getElementById("chart")!
+    createChart(container, {
+      type: "pie",
+      series: [
+        { data: [{ x: 0, y: 35 }], label: "Chrome" },
+        { data: [{ x: 0, y: 25 }], label: "Safari" },
+        { data: [{ x: 0, y: 20 }], label: "Firefox" },
+        { data: [{ x: 0, y: 15 }], label: "Edge" },
+        { data: [{ x: 0, y: 5 }], label: "Other" },
+      ],
+      title: "Pie Chart Demo",
+    })
+  </script>
+</BaseLayout>
