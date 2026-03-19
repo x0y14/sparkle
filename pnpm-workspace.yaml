@@ -4,3 +4,4 @@ packages:
   - "examples/ec/*"
   - "examples/ui"
   - "examples/charts"
+  - "examples/figure"

@@ -1,0 +1,44 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+<BaseLayout>
+  <div class="app-shell">
+    <figure-header></figure-header>
+    <figure-left-toolbar></figure-left-toolbar>
+    <div class="canvas-area">
+      <figure-canvas></figure-canvas>
+      <figure-right-panel></figure-right-panel>
+    </div>
+  </div>
+</BaseLayout>
+<script>
+  import '../components/figure-tool-button';
+  import '../components/figure-header';
+  import '../components/figure-left-toolbar';
+  import '../components/figure-right-panel';
+  import '../components/figure-canvas';
+</script>
+<style>
+  .app-shell {
+    display: grid;
+    grid-template-columns: 48px 1fr;
+    grid-template-rows: 48px 1fr;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+  }
+  figure-header {
+    grid-column: 1 / -1;
+    grid-row: 1;
+  }
+  figure-left-toolbar {
+    grid-column: 1;
+    grid-row: 2;
+  }
+  .canvas-area {
+    grid-column: 2;
+    grid-row: 2;
+    position: relative;
+    overflow: hidden;
+  }
+</style>
