@@ -20,3 +20,5 @@ storybook-static
 __screenshots__
 
 dist-storybook
+
+**/*-snapshots/

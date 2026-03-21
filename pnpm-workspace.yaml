@@ -6,3 +6,4 @@ packages:
   - "examples/charts"
   - "examples/figure"
   - "examples/fit"
+  - "examples/md-live-preview"

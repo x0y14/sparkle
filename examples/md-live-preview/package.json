@@ -1,0 +1,30 @@
+{
+  "name": "@examples/md-live-preview",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev --port 4322",
+    "build": "astro build",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:e2e": "playwright test"
+  },
+  "dependencies": {
+    "@markdoc/markdoc": "^0.4.0",
+    "@sparkio/astro": "workspace:*",
+    "@sparkio/core": "workspace:*",
+    "@sparkio/vite": "workspace:*",
+    "@unocss/astro": "^66.0.0",
+    "@unocss/preset-typography": "^66.0.0",
+    "@unocss/reset": "^66.0.0",
+    "astro": "^6.0.4",
+    "unocss": "^66.0.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.52.0",
+    "@unocss/preset-wind4": "^66.6.6",
+    "happy-dom": "^17.0.0",
+    "vitest": "^3.0.0"
+  }
+}
