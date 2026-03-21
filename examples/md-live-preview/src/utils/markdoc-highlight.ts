@@ -250,6 +250,16 @@ export function renderWithLocations(source: string): string {
   return Markdoc.renderers.html(content)
 }
 
+export function findClickOffset(element: Element): number | null {
+  let el: Element | null = element
+  while (el) {
+    const end = el.getAttribute("data-offset-end")
+    if (end != null) return Number(end)
+    el = el.parentElement
+  }
+  return null
+}
+
 const HIGHLIGHT_CLASS = "highlight-active"
 
 export function applyHighlight(
@@ -261,6 +271,9 @@ export function applyHighlight(
 
   for (const el of root.querySelectorAll(`.${HIGHLIGHT_CLASS}`)) {
     el.classList.remove(HIGHLIGHT_CLASS)
+  }
+  for (const el of root.querySelectorAll(".highlight-hover")) {
+    el.classList.remove("highlight-hover")
   }
 
   const candidates = root.querySelectorAll("[data-offset-start]")

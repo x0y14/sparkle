@@ -37,11 +37,39 @@ const MdLivePreview = defineElement(
         if (preview) applyHighlight(preview, currentOffset)
       }) as EventListener
 
+      const previewClickHandler = ((e: Event) => {
+        if (!(e instanceof CustomEvent)) return
+        const offset = e.detail?.offset
+        if (offset == null) return
+        const editorEl = root.querySelector("md-editor") as HTMLElement
+        const ta = editorEl?.shadowRoot?.querySelector("textarea") as HTMLTextAreaElement
+        if (ta) {
+          ta.focus()
+          ta.setSelectionRange(offset, offset)
+        }
+      }) as EventListener
+
+      const hoverEndHandler = ((e: Event) => {
+        if (!(e instanceof CustomEvent)) return
+        const preview = root.querySelector("md-preview") as HTMLElement
+        if (preview) applyHighlight(preview, currentOffset)
+      }) as EventListener
+
+      const previewEl = root.querySelector("md-preview")
+
       editor.addEventListener("input", inputHandler)
       editor.addEventListener("cursor-move", cursorHandler)
+      if (previewEl) {
+        previewEl.addEventListener("preview-click", previewClickHandler)
+        previewEl.addEventListener("preview-hover-end", hoverEndHandler)
+      }
       return () => {
         editor.removeEventListener("input", inputHandler)
         editor.removeEventListener("cursor-move", cursorHandler)
+        if (previewEl) {
+          previewEl.removeEventListener("preview-click", previewClickHandler)
+          previewEl.removeEventListener("preview-hover-end", hoverEndHandler)
+        }
       }
     }, [])
 

@@ -44,6 +44,25 @@ test.describe("Markdoc Live Preview integration", () => {
     await expect(page.locator("md-preview strong.highlight-active")).toBeVisible()
   })
 
+  test("clicking preview element moves editor cursor", async ({ page }) => {
+    await page.goto("/")
+    const textarea = page.locator("md-editor textarea")
+    await textarea.fill("# Hello\n\nSome paragraph")
+    await expect(page.locator("md-preview h1")).toBeVisible()
+    await page.locator("md-preview h1").click()
+    const cursorPos = await textarea.evaluate((el: HTMLTextAreaElement) => el.selectionStart)
+    expect(cursorPos).toBe(8)
+  })
+
+  test("hovering preview element adds highlight-hover", async ({ page }) => {
+    await page.goto("/")
+    const textarea = page.locator("md-editor textarea")
+    await textarea.fill("# Hello\n\nSome paragraph")
+    await expect(page.locator("md-preview h1")).toBeVisible()
+    await page.locator("md-preview h1").hover()
+    await expect(page.locator("md-preview .highlight-hover")).toBeVisible()
+  })
+
   test("screenshot: after real-time rendering", async ({ page }) => {
     await page.goto("/")
     const textarea = page.locator("md-editor textarea")

@@ -151,4 +151,60 @@ describe("md-live-preview", () => {
     expect(h1).not.toBeNull()
     expect(h1!.classList.contains("highlight-active")).toBe(true)
   })
+
+  it("moves editor cursor to end of clicked preview element", async () => {
+    el = await createElement("md-live-preview")
+    const editor = sq(el, "md-editor") as HTMLElement
+    const ta = sq(editor, "textarea") as HTMLTextAreaElement
+    ta.value = "# Hello\n\nParagraph"
+    ta.dispatchEvent(new Event("input", { bubbles: true }))
+    await new Promise((r) => setTimeout(r, 50))
+    const preview = sq(el, "md-preview") as HTMLElement
+    const h1 = sq(preview, "h1") as HTMLElement
+    h1.click()
+    await new Promise((r) => setTimeout(r, 50))
+    // "# Hello\n" → lineOffsets[1] = 8 → data-offset-end="8"
+    expect(ta.selectionStart).toBe(8)
+    expect(ta.selectionEnd).toBe(8)
+  })
+
+  it("moves editor cursor when clicking inline element", async () => {
+    el = await createElement("md-live-preview")
+    const editor = sq(el, "md-editor") as HTMLElement
+    const ta = sq(editor, "textarea") as HTMLTextAreaElement
+    ta.value = "**bold** text"
+    ta.dispatchEvent(new Event("input", { bubbles: true }))
+    await new Promise((r) => setTimeout(r, 50))
+    const preview = sq(el, "md-preview") as HTMLElement
+    const strong = sq(preview, "strong") as HTMLElement
+    strong.click()
+    await new Promise((r) => setTimeout(r, 50))
+    expect(ta.selectionStart).toBe(8)
+    expect(ta.selectionEnd).toBe(8)
+  })
+
+  it("re-applies cursor highlight after hover ends", async () => {
+    el = await createElement("md-live-preview")
+    const editor = sq(el, "md-editor") as HTMLElement
+    const ta = sq(editor, "textarea") as HTMLTextAreaElement
+    ta.value = "# Hello\n\nParagraph"
+    ta.dispatchEvent(new Event("input", { bubbles: true }))
+    await new Promise((r) => setTimeout(r, 50))
+    ta.setSelectionRange(2, 2)
+    ta.dispatchEvent(new MouseEvent("click", { bubbles: true }))
+    await new Promise((r) => setTimeout(r, 50))
+    const preview = sq(el, "md-preview") as HTMLElement
+    expect(sq(preview, "h1")!.classList.contains("highlight-active")).toBe(true)
+    // ホバー開始 → highlight-active が消える
+    const p = sq(preview, "p") as HTMLElement
+    p.dispatchEvent(new MouseEvent("mouseover", { bubbles: true }))
+    await new Promise((r) => setTimeout(r, 50))
+    expect(sq(preview, "h1")!.classList.contains("highlight-active")).toBe(false)
+    expect(p.classList.contains("highlight-hover")).toBe(true)
+    // ホバー終了 → highlight-active が再適用
+    preview.shadowRoot!.dispatchEvent(new MouseEvent("mouseleave"))
+    await new Promise((r) => setTimeout(r, 50))
+    expect(p.classList.contains("highlight-hover")).toBe(false)
+    expect(sq(preview, "h1")!.classList.contains("highlight-active")).toBe(true)
+  })
 })

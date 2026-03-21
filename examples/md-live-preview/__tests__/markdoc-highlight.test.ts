@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest"
 import {
   computeLineOffsets,
   renderWithLocations,
+  findClickOffset,
 } from "../src/utils/markdoc-highlight"
 
 describe("computeLineOffsets", () => {
@@ -97,5 +98,26 @@ describe("renderWithLocations", () => {
     const html = renderWithLocations("# Hello")
     expect(html).toMatch(/h1[^>]*data-offset-start="0"/)
     expect(html).toMatch(/h1[^>]*data-offset-end="7"/)
+  })
+})
+
+describe("findClickOffset", () => {
+  it("returns offset-end from element with data attribute", () => {
+    const el = document.createElement("h1")
+    el.setAttribute("data-offset-end", "7")
+    expect(findClickOffset(el)).toBe(7)
+  })
+
+  it("walks up to find ancestor with data attribute", () => {
+    const parent = document.createElement("p")
+    parent.setAttribute("data-offset-end", "20")
+    const child = document.createElement("span")
+    parent.appendChild(child)
+    expect(findClickOffset(child)).toBe(20)
+  })
+
+  it("returns null when no data attribute found", () => {
+    const el = document.createElement("div")
+    expect(findClickOffset(el)).toBeNull()
   })
 })
