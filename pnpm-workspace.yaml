@@ -7,3 +7,4 @@ packages:
   - "examples/figure"
   - "examples/fit"
   - "examples/md-live-preview"
+  - "examples/layout"
