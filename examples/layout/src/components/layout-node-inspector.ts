@@ -7,6 +7,7 @@ const LayoutNodeInspector = defineElement(
       nodeType: { type: String, value: () => "" },
       nodeId: { type: String, value: () => "" },
       nodeDirection: { type: String, value: () => "" },
+      nodeSize: { type: String, value: () => "" },
     },
     styles: css`@unocss-placeholder
 :host { @apply block; }`,
@@ -15,6 +16,7 @@ const LayoutNodeInspector = defineElement(
     const host = useHost()
     const dispatchIdChange = useEvent<{ id: string }>("id-change", { bubbles: true, composed: true })
     const dispatchDirectionChange = useEvent<{ direction: string }>("direction-change", { bubbles: true, composed: true })
+    const dispatchSizeChange = useEvent<{ size: string }>("size-change", { bubbles: true, composed: true })
     const dispatchNodeDelete = useEvent("node-delete", { bubbles: true, composed: true })
 
     useEffect(() => {
@@ -26,6 +28,8 @@ const LayoutNodeInspector = defineElement(
           dispatchIdChange({ id: input.value })
         } else if (field === "direction") {
           dispatchDirectionChange({ direction: input.value })
+        } else if (field === "size") {
+          dispatchSizeChange({ size: input.value })
         }
       }
       const clickHandler = (e: MouseEvent) => {
@@ -50,6 +54,17 @@ const LayoutNodeInspector = defineElement(
   <div data-field="id" class="flex items-center gap-2">
     <span class="text-gray-500">id:</span>
     <input type="text" value="${props.nodeId}" class="border border-gray-300 rounded px-2 py-1 text-sm flex-1" />
+  </div>
+  ${deleteBtn}
+</div>`
+    }
+
+    if (props.nodeType === "spacer") {
+      return `<div data-inspector class="bg-white shadow-lg rounded-lg p-3 text-sm flex flex-col gap-2">
+  <div data-field="type" class="text-gray-500">spacer</div>
+  <div data-field="size" class="flex items-center gap-2">
+    <span class="text-gray-500">size:</span>
+    <input type="text" value="${props.nodeSize}" class="border border-gray-300 rounded px-2 py-1 text-sm flex-1" />
   </div>
   ${deleteBtn}
 </div>`

@@ -65,6 +65,11 @@ describe("parseLayoutNode", () => {
     })
     expect(parseLayoutNode(json)).toBeNull()
   })
+
+  it("parses a valid Spacer", () => {
+    const result = parseLayoutNode('{"type":"spacer","size":"1/2"}')
+    expect(result).toEqual({ type: "spacer", size: "1/2" })
+  })
 })
 
 describe("renderLayoutNode", () => {
@@ -132,6 +137,20 @@ describe("renderLayoutNode", () => {
     expect(html).not.toContain("<script>")
     expect(html).toContain("&lt;script&gt;")
   })
+
+  it("renders a Spacer with green border and flex-basis", () => {
+    const html = renderLayoutNode({ type: "spacer", size: "1/2" })
+    expect(html).toContain('data-node-type="spacer"')
+    expect(html).toContain("border-green-300")
+    expect(html).toContain("spacer 1/2")
+    expect(html).toContain("flex: 0 0 50%")
+  })
+
+  it("renders a Spacer with auto size using flex: 1", () => {
+    const html = renderLayoutNode({ type: "spacer", size: "auto" })
+    expect(html).toContain("flex: 1 1 0%")
+    expect(html).toContain("spacer auto")
+  })
 })
 
 describe("renderLayoutNodeWithPath", () => {
@@ -171,6 +190,19 @@ describe("renderLayoutNodeWithPath", () => {
     expect(html).toContain('data-path="0"')
     expect(html).toContain('data-path="0.0"')
   })
+
+  it("renders a Spacer with data-path and flex-basis", () => {
+    const html = renderLayoutNodeWithPath({ type: "spacer", size: "1/3" }, "0")
+    expect(html).toContain('data-path="0"')
+    expect(html).toContain("flex: 0 0 33.333%")
+    expect(html).toContain("cursor-grab")
+  })
+
+  it("renders a Spacer with auto size and data-path", () => {
+    const html = renderLayoutNodeWithPath({ type: "spacer", size: "auto" }, "0")
+    expect(html).toContain("flex: 1 1 0%")
+    expect(html).toContain('data-path="0"')
+  })
 })
 
 describe("createNewNode", () => {
@@ -198,5 +230,10 @@ describe("createNewNode", () => {
     if (a.type === "item" && b.type === "item") {
       expect(a.id).not.toBe(b.id)
     }
+  })
+
+  it("spacer生成: type=spacer, size=1/2", () => {
+    const node = createNewNode("spacer")
+    expect(node).toEqual({ type: "spacer", size: "1/2" })
   })
 })

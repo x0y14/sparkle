@@ -8,10 +8,10 @@ describe("layout-toolbox", () => {
     if (el) cleanup(el)
   })
 
-  it("renders three toolbox entries", async () => {
+  it("renders four toolbox entries", async () => {
     el = await createElement("layout-toolbox")
     const entries = sqa(el, "[data-toolbox-type]")
-    expect(entries).toHaveLength(3)
+    expect(entries).toHaveLength(4)
   })
 
   it("renders vertical entry", async () => {
@@ -33,6 +33,13 @@ describe("layout-toolbox", () => {
     const entry = sq(el, "[data-toolbox-type='item']")
     expect(entry).not.toBeNull()
     expect(entry!.textContent).toContain("Item")
+  })
+
+  it("renders spacer entry", async () => {
+    el = await createElement("layout-toolbox")
+    const entry = sq(el, "[data-toolbox-type='spacer']")
+    expect(entry).not.toBeNull()
+    expect(entry!.textContent).toContain("Spacer")
   })
 
   it("renders drag handle", async () => {

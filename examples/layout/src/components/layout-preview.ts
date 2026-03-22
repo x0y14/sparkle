@@ -47,6 +47,7 @@ const LayoutPreview = defineElement(
       nodeType?: string
       nodeId?: string
       direction?: string
+      spacerSize?: string
     }>("node-select", { bubbles: true, composed: true })
 
     useEffect(() => {
@@ -87,11 +88,11 @@ const LayoutPreview = defineElement(
       }
 
       const mousedownHandler = (e: MouseEvent) => {
-        const target = (e.target as Element).closest("[data-node-type='item']") as HTMLElement | null
+        const target = (e.target as Element).closest("[data-node-type='item'], [data-node-type='spacer']") as HTMLElement | null
         if (!target) return
         const path = target.getAttribute("data-path")
-        const nodeId = target.getAttribute("data-node-id")
-        if (path == null || nodeId == null) return
+        if (path == null) return
+        const nodeId = target.getAttribute("data-node-id") ?? ""
 
         const rect = target.getBoundingClientRect()
         dragState = beginLayoutDrag(path, nodeId, e.clientX, e.clientY, rect.left, rect.top)
@@ -163,6 +164,8 @@ const LayoutPreview = defineElement(
 
         if (nodeType === "item") {
           dispatchNodeSelect({ path, nodeType, nodeId: target.getAttribute("data-node-id") ?? "" })
+        } else if (nodeType === "spacer") {
+          dispatchNodeSelect({ path, nodeType, spacerSize: target.getAttribute("data-spacer-size") ?? "" })
         } else {
           dispatchNodeSelect({ path, nodeType, direction: target.getAttribute("data-direction") ?? "" })
         }

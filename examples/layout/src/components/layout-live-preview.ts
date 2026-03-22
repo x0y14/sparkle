@@ -5,7 +5,7 @@ import "./layout-toolbox"
 import "./layout-node-inspector"
 import { parseLayoutNode, createNewNode } from "../utils/layout-parser"
 import { findDropTarget, extractLayoutGeometry } from "../utils/drop-target"
-import { insertNode, updateItemId, updateLayoutDirection, removeNode } from "../utils/tree-ops"
+import { insertNode, updateItemId, updateLayoutDirection, updateSpacerSize, removeNode } from "../utils/tree-ops"
 import type { DropResult } from "../utils/drop-target"
 
 const LayoutLivePreview = defineElement(
@@ -64,7 +64,7 @@ const LayoutLivePreview = defineElement(
       }) as EventListener
 
       // --- ツールボックスドラッグ ---
-      let toolboxDragType: "item" | "vertical" | "horizontal" | null = null
+      let toolboxDragType: "item" | "vertical" | "horizontal" | "spacer" | null = null
       let currentDropResult: DropResult | null = null
       let indicatorEl: HTMLElement | null = null
 
@@ -171,14 +171,22 @@ const LayoutLivePreview = defineElement(
           inspector.nodeType = ""
           inspector.nodeId = ""
           inspector.nodeDirection = ""
+          inspector.nodeSize = ""
         } else if (detail.nodeType === "item") {
           inspector.nodeType = "item"
           inspector.nodeId = detail.nodeId ?? ""
           inspector.nodeDirection = ""
+          inspector.nodeSize = ""
+        } else if (detail.nodeType === "spacer") {
+          inspector.nodeType = "spacer"
+          inspector.nodeId = ""
+          inspector.nodeDirection = ""
+          inspector.nodeSize = detail.spacerSize ?? ""
         } else {
           inspector.nodeType = "layout"
           inspector.nodeId = ""
           inspector.nodeDirection = detail.direction ?? ""
+          inspector.nodeSize = ""
         }
       }) as EventListener
 
@@ -207,6 +215,18 @@ const LayoutLivePreview = defineElement(
         updateAll(JSON.stringify(newTree, null, 2))
       }) as EventListener
 
+      const sizeChangeHandler = ((e: Event) => {
+        if (!(e instanceof CustomEvent)) return
+        if (selectedNodePath === null) return
+        const previewEl = root.querySelector("layout-preview") as any
+        if (!previewEl) return
+        const tree = parseLayoutNode(previewEl.content)
+        if (!tree) return
+        const newTree = updateSpacerSize(tree, selectedNodePath, e.detail.size)
+        if (!newTree) return
+        updateAll(JSON.stringify(newTree, null, 2))
+      }) as EventListener
+
       const nodeDeleteHandler = ((_e: Event) => {
         if (selectedNodePath === null) return
         const previewEl = root.querySelector("layout-preview") as any
@@ -228,6 +248,7 @@ const LayoutLivePreview = defineElement(
           inspector.nodeType = ""
           inspector.nodeId = ""
           inspector.nodeDirection = ""
+          inspector.nodeSize = ""
         }
       }) as EventListener
 
@@ -239,6 +260,7 @@ const LayoutLivePreview = defineElement(
       previewEl?.addEventListener("node-select", nodeSelectHandler)
       inspectorEl?.addEventListener("id-change", idChangeHandler)
       inspectorEl?.addEventListener("direction-change", directionChangeHandler)
+      inspectorEl?.addEventListener("size-change", sizeChangeHandler)
       inspectorEl?.addEventListener("node-delete", nodeDeleteHandler)
 
       root.addEventListener("mousedown", toolboxMousedownHandler)
@@ -251,6 +273,7 @@ const LayoutLivePreview = defineElement(
         previewEl?.removeEventListener("node-select", nodeSelectHandler)
         inspectorEl?.removeEventListener("id-change", idChangeHandler)
         inspectorEl?.removeEventListener("direction-change", directionChangeHandler)
+        inspectorEl?.removeEventListener("size-change", sizeChangeHandler)
         inspectorEl?.removeEventListener("node-delete", nodeDeleteHandler)
         root.removeEventListener("mousedown", toolboxMousedownHandler)
         root.removeEventListener("mousemove", toolboxMousemoveHandler)

@@ -9,7 +9,7 @@ export default defineConfig({
     "items-center", "justify-center",
     "gap-2", "p-2", "p-4",
     "border-2", "border-blue-300", "border-gray-300",
-    "bg-blue-50", "bg-gray-50",
+    "bg-blue-50", "bg-gray-50", "border-green-300", "bg-green-50",
     "rounded", "text-sm", "font-mono", "flex-1",
     // ドラッグ用
     "cursor-grab",

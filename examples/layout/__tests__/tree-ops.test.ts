@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest"
-import { parsePath, getNode, removeNode, insertNode, moveNode, isAncestorPath, updateItemId, updateLayoutDirection } from "../src/utils/tree-ops"
+import { parsePath, getNode, removeNode, insertNode, moveNode, isAncestorPath, updateItemId, updateLayoutDirection, updateSpacerSize } from "../src/utils/tree-ops"
 import type { LayoutNode } from "../src/utils/layout-parser"
 
 const tree: LayoutNode = {
@@ -188,5 +188,28 @@ describe("updateLayoutDirection", () => {
     const original = JSON.stringify(tree)
     updateLayoutDirection(tree, "1", "vertical")
     expect(JSON.stringify(tree)).toBe(original)
+  })
+})
+
+describe("updateSpacerSize", () => {
+  const spacerTree: import("../src/utils/layout-parser").LayoutNode = {
+    type: "layout", direction: "vertical", children: [
+      { type: "spacer", size: "1/2" },
+      { type: "item", id: "a" },
+    ]
+  }
+
+  it("spacerのsizeを変更", () => {
+    const result = updateSpacerSize(spacerTree, "0", "1/3")!
+    const node = getNode(result, "0")
+    expect(node).toEqual({ type: "spacer", size: "1/3" })
+  })
+  it("itemパスにはnull", () => {
+    expect(updateSpacerSize(spacerTree, "1", "1/2")).toBeNull()
+  })
+  it("元のツリーは変更されない", () => {
+    const original = JSON.stringify(spacerTree)
+    updateSpacerSize(spacerTree, "0", "1/3")
+    expect(JSON.stringify(spacerTree)).toBe(original)
   })
 })

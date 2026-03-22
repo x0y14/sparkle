@@ -59,6 +59,29 @@ describe("layout-node-inspector", () => {
     expect(received).toBe("horizontal")
   })
 
+  it("spacer選択時: type, size表示", async () => {
+    el = await createElement("layout-node-inspector", {
+      "node-type": "spacer", "node-size": "1/2",
+    })
+    expect(sq(el, "[data-field='type']")!.textContent).toContain("spacer")
+    expect((sq(el, "[data-field='size'] input") as HTMLInputElement).value).toBe("1/2")
+  })
+
+  it("size変更でsize-changeイベント発火", async () => {
+    el = await createElement("layout-node-inspector", {
+      "node-type": "spacer", "node-size": "1/2",
+    })
+    let received: string | undefined
+    el.addEventListener("size-change", ((e: CustomEvent) => {
+      received = e.detail.size
+    }) as EventListener)
+    const input = sq(el, "[data-field='size'] input") as HTMLInputElement
+    input.value = "1/3"
+    input.dispatchEvent(new Event("change", { bubbles: true }))
+    await new Promise((r) => setTimeout(r, 0))
+    expect(received).toBe("1/3")
+  })
+
   it("renders delete button when node selected", async () => {
     el = await createElement("layout-node-inspector", {
       "node-type": "item", "node-id": "a",

@@ -60,6 +60,7 @@ const LayoutToolbox = defineElement(
   <div data-toolbox-type="vertical" class="px-3 py-2 text-sm cursor-grab rounded hover:bg-gray-100 select-none">Vertical</div>
   <div data-toolbox-type="horizontal" class="px-3 py-2 text-sm cursor-grab rounded hover:bg-gray-100 select-none">Horizontal</div>
   <div data-toolbox-type="item" class="px-3 py-2 text-sm cursor-grab rounded hover:bg-gray-100 select-none">Item</div>
+  <div data-toolbox-type="spacer" class="px-3 py-2 text-sm cursor-grab rounded hover:bg-gray-100 select-none">Spacer</div>
 </div>`
   },
 )

@@ -130,3 +130,18 @@ export function updateLayoutDirection(tree: LayoutNode, path: NodePath, newDirec
   current.direction = newDirection
   return cloned
 }
+
+export function updateSpacerSize(tree: LayoutNode, path: NodePath, newSize: string): LayoutNode | null {
+  const node = getNode(tree, path)
+  if (!node || node.type !== "spacer") return null
+  const cloned = cloneTree(tree)
+  let current: LayoutNode = cloned
+  const indices = parsePath(path)
+  for (const i of indices) {
+    if (current.type !== "layout") return null
+    current = current.children[i]
+  }
+  if (current.type !== "spacer") return null
+  current.size = newSize
+  return cloned
+}
