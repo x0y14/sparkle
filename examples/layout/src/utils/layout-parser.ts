@@ -1,14 +1,16 @@
-export type Item = { type: "item"; id: string }
+export type Item = { type: "item"; id: string; width: string; height: string }
 export type Layout = { type: "layout"; direction: "vertical" | "horizontal"; children: LayoutNode[] }
 export type Spacer = { type: "spacer"; size: string }
 export type LayoutNode = Item | Layout | Spacer
 
 function isItem(obj: unknown): obj is Item {
+  if (typeof obj !== "object" || obj === null) return false
+  const o = obj as Record<string, unknown>
   return (
-    typeof obj === "object" &&
-    obj !== null &&
-    (obj as Record<string, unknown>).type === "item" &&
-    typeof (obj as Record<string, unknown>).id === "string"
+    o.type === "item" &&
+    typeof o.id === "string" &&
+    (o.width === undefined || typeof o.width === "string") &&
+    (o.height === undefined || typeof o.height === "string")
   )
 }
 
@@ -39,11 +41,21 @@ function isLayoutNode(obj: unknown): obj is LayoutNode {
 export function parseLayoutNode(json: string): LayoutNode | null {
   try {
     const parsed: unknown = JSON.parse(json)
-    if (isLayoutNode(parsed)) return parsed
-    return null
+    if (!isLayoutNode(parsed)) return null
+    return normalizeDefaults(parsed)
   } catch {
     return null
   }
+}
+
+function normalizeDefaults(node: LayoutNode): LayoutNode {
+  if (node.type === "item") {
+    return { ...node, width: node.width ?? "auto", height: node.height ?? "auto" }
+  }
+  if (node.type === "layout") {
+    return { ...node, children: node.children.map(normalizeDefaults) }
+  }
+  return node
 }
 
 function escapeHtml(s: string): string {
@@ -52,6 +64,17 @@ function escapeHtml(s: string): string {
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
+}
+
+function buildItemSizeStyle(width: string | undefined, height: string | undefined): string {
+  const parts: string[] = []
+  if (width && width !== "auto") parts.push(`width: ${width}`)
+  if (height && height !== "auto") parts.push(`height: ${height}`)
+  return parts.join("; ")
+}
+
+function hasExplicitSize(width: string | undefined, height: string | undefined): boolean {
+  return (!!width && width !== "auto") || (!!height && height !== "auto")
 }
 
 function sizeToBasis(size: string): string {
@@ -66,7 +89,10 @@ function sizeToBasis(size: string): string {
 export function renderLayoutNode(node: LayoutNode): string {
   if (node.type === "item") {
     const id = escapeHtml(node.id)
-    return `<div data-node-type="item" data-node-id="${id}" class="flex flex-1 items-center justify-center p-4 border-2 border-blue-300 bg-blue-50 rounded text-sm font-mono">${id}</div>`
+    const sizeStyle = buildItemSizeStyle(node.width, node.height)
+    const styleAttr = sizeStyle ? ` style="${sizeStyle}"` : ""
+    const flexClass = hasExplicitSize(node.width, node.height) ? "flex-none" : "flex flex-1"
+    return `<div data-node-type="item" data-node-id="${id}"${styleAttr} class="${flexClass} items-center justify-center p-4 border-2 border-blue-300 bg-blue-50 rounded text-sm font-mono">${id}</div>`
   }
   if (node.type === "spacer") {
     const flexStyle = node.size === "auto" ? "flex: 1 1 0%" : `flex: 0 0 ${sizeToBasis(node.size)}`
@@ -80,7 +106,12 @@ export function renderLayoutNode(node: LayoutNode): string {
 export function renderLayoutNodeWithPath(node: LayoutNode, path: string = ""): string {
   if (node.type === "item") {
     const id = escapeHtml(node.id)
-    return `<div data-node-type="item" data-node-id="${id}" data-path="${path}" class="flex flex-1 items-center justify-center p-4 border-2 border-blue-300 bg-blue-50 rounded text-sm font-mono cursor-grab">${id}</div>`
+    const sizeStyle = buildItemSizeStyle(node.width, node.height)
+    const styleAttr = sizeStyle ? ` style="${sizeStyle}"` : ""
+    const w = node.width ?? "auto"
+    const h = node.height ?? "auto"
+    const flexClass = hasExplicitSize(node.width, node.height) ? "flex-none" : "flex flex-1"
+    return `<div data-node-type="item" data-node-id="${id}" data-item-width="${escapeHtml(w)}" data-item-height="${escapeHtml(h)}" data-path="${path}"${styleAttr} class="${flexClass} items-center justify-center p-4 border-2 border-blue-300 bg-blue-50 rounded text-sm font-mono cursor-grab">${id}</div>`
   }
   if (node.type === "spacer") {
     const flexStyle = node.size === "auto" ? "flex: 1 1 0%" : `flex: 0 0 ${sizeToBasis(node.size)}`
@@ -96,7 +127,7 @@ export function renderLayoutNodeWithPath(node: LayoutNode, path: string = ""): s
 
 export function createNewNode(nodeType: "item" | "vertical" | "horizontal" | "spacer"): LayoutNode {
   if (nodeType === "item") {
-    return { type: "item", id: `item-${crypto.randomUUID().slice(0, 8)}` }
+    return { type: "item", id: `item-${crypto.randomUUID().slice(0, 8)}`, width: "auto", height: "auto" }
   }
   if (nodeType === "spacer") {
     return { type: "spacer", size: "1/2" }

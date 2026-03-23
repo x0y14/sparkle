@@ -17,18 +17,19 @@ const LayoutToolbox = defineElement(
       let startLeft = 0
       let startTop = 0
 
-      const mousedownHandler = (e: MouseEvent) => {
-        const handle = (e.target as Element).closest("[data-toolbox-handle]")
+      const mousedownHandler = (e: Event) => {
+        const me = e as MouseEvent
+        const handle = (me.target as Element).closest("[data-toolbox-handle]")
         if (!handle) return
         isDragging = true
-        startX = e.clientX
-        startY = e.clientY
+        startX = me.clientX
+        startY = me.clientY
         const hostEl = host.current
         const rect = hostEl.getBoundingClientRect()
         const parentRect = hostEl.offsetParent?.getBoundingClientRect() ?? { x: 0, y: 0 }
         startLeft = rect.x - parentRect.x
         startTop = rect.y - parentRect.y
-        e.preventDefault()
+        me.preventDefault()
       }
 
       const mousemoveHandler = (e: MouseEvent) => {

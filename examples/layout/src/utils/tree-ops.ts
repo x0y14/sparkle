@@ -145,3 +145,33 @@ export function updateSpacerSize(tree: LayoutNode, path: NodePath, newSize: stri
   current.size = newSize
   return cloned
 }
+
+export function updateItemWidth(tree: LayoutNode, path: NodePath, newWidth: string): LayoutNode | null {
+  const node = getNode(tree, path)
+  if (!node || node.type !== "item") return null
+  const cloned = cloneTree(tree)
+  let current: LayoutNode = cloned
+  const indices = parsePath(path)
+  for (const i of indices) {
+    if (current.type !== "layout") return null
+    current = current.children[i]
+  }
+  if (current.type !== "item") return null
+  current.width = newWidth
+  return cloned
+}
+
+export function updateItemHeight(tree: LayoutNode, path: NodePath, newHeight: string): LayoutNode | null {
+  const node = getNode(tree, path)
+  if (!node || node.type !== "item") return null
+  const cloned = cloneTree(tree)
+  let current: LayoutNode = cloned
+  const indices = parsePath(path)
+  for (const i of indices) {
+    if (current.type !== "layout") return null
+    current = current.children[i]
+  }
+  if (current.type !== "item") return null
+  current.height = newHeight
+  return cloned
+}

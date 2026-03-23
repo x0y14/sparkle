@@ -97,6 +97,19 @@ describe("layout-preview", () => {
     expect(received.nodeId).toBe("a")
   })
 
+  it("emits node-select with width and height on item click", async () => {
+    el = await createElement("layout-preview", {
+      content: JSON.stringify({ type: "item", id: "a", width: "100px", height: "50px" }),
+    })
+    let received: any
+    el.addEventListener("node-select", ((e: CustomEvent) => { received = e.detail }) as EventListener)
+    const item = sq(el, "[data-node-id='a']") as HTMLElement
+    item.click()
+    await new Promise((r) => setTimeout(r, 0))
+    expect(received.itemWidth).toBe("100px")
+    expect(received.itemHeight).toBe("50px")
+  })
+
   it("emits node-select on layout click", async () => {
     el = await createElement("layout-preview")
     ;(el as any).content = JSON.stringify({

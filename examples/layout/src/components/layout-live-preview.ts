@@ -5,7 +5,7 @@ import "./layout-toolbox"
 import "./layout-node-inspector"
 import { parseLayoutNode, createNewNode } from "../utils/layout-parser"
 import { findDropTarget, extractLayoutGeometry } from "../utils/drop-target"
-import { insertNode, updateItemId, updateLayoutDirection, updateSpacerSize, removeNode } from "../utils/tree-ops"
+import { insertNode, updateItemId, updateLayoutDirection, updateSpacerSize, updateItemWidth, updateItemHeight, removeNode } from "../utils/tree-ops"
 import type { DropResult } from "../utils/drop-target"
 
 const LayoutLivePreview = defineElement(
@@ -23,6 +23,21 @@ const LayoutLivePreview = defineElement(
   height: 100%;
   background: #3b82f6;
   border-radius: 1px;
+}
+.toggle-group { display: flex; gap: 4px; }
+.toggle-btn {
+  padding: 4px 12px;
+  font-size: 13px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  background: #fff;
+  color: #374151;
+  cursor: pointer;
+}
+.toggle-btn.active {
+  background: #3b82f6;
+  color: #fff;
+  border-color: #3b82f6;
 }`,
   },
   () => {
@@ -32,6 +47,36 @@ const LayoutLivePreview = defineElement(
       const root = host.current.shadowRoot!
       const editor = root.querySelector("layout-editor")
       if (!editor) return
+
+      // --- view mode toggle ---
+      const editorPanel = root.querySelector("[data-panel='editor']") as HTMLElement
+      const previewPanel = root.querySelector("[data-panel='preview']") as HTMLElement
+      const previewBtn = root.querySelector("button[data-mode='preview']") as HTMLElement
+      const editorBtnEl = root.querySelector("button[data-mode='editor']") as HTMLElement
+
+      const setViewMode = (mode: "preview" | "editor") => {
+        if (mode === "preview") {
+          editorPanel.style.display = "none"
+          previewPanel.style.display = ""
+          previewBtn.classList.add("active")
+          editorBtnEl.classList.remove("active")
+        } else {
+          editorPanel.style.display = ""
+          previewPanel.style.display = "none"
+          editorBtnEl.classList.add("active")
+          previewBtn.classList.remove("active")
+        }
+      }
+
+      const toggleClickHandler = ((e: Event) => {
+        const target = (e.target as HTMLElement).closest("button[data-mode]") as HTMLElement | null
+        if (!target) return
+        const mode = target.getAttribute("data-mode") as "preview" | "editor"
+        setViewMode(mode)
+      }) as EventListener
+
+      const headerEl = root.querySelector("header")
+      headerEl?.addEventListener("click", toggleClickHandler)
 
       // --- helper: editorとpreviewを更新 ---
       const updateAll = (json: string) => {
@@ -172,21 +217,29 @@ const LayoutLivePreview = defineElement(
           inspector.nodeId = ""
           inspector.nodeDirection = ""
           inspector.nodeSize = ""
+          inspector.nodeWidth = ""
+          inspector.nodeHeight = ""
         } else if (detail.nodeType === "item") {
           inspector.nodeType = "item"
           inspector.nodeId = detail.nodeId ?? ""
           inspector.nodeDirection = ""
           inspector.nodeSize = ""
+          inspector.nodeWidth = detail.itemWidth ?? "auto"
+          inspector.nodeHeight = detail.itemHeight ?? "auto"
         } else if (detail.nodeType === "spacer") {
           inspector.nodeType = "spacer"
           inspector.nodeId = ""
           inspector.nodeDirection = ""
           inspector.nodeSize = detail.spacerSize ?? ""
+          inspector.nodeWidth = ""
+          inspector.nodeHeight = ""
         } else {
           inspector.nodeType = "layout"
           inspector.nodeId = ""
           inspector.nodeDirection = detail.direction ?? ""
           inspector.nodeSize = ""
+          inspector.nodeWidth = ""
+          inspector.nodeHeight = ""
         }
       }) as EventListener
 
@@ -227,6 +280,30 @@ const LayoutLivePreview = defineElement(
         updateAll(JSON.stringify(newTree, null, 2))
       }) as EventListener
 
+      const widthChangeHandler = ((e: Event) => {
+        if (!(e instanceof CustomEvent)) return
+        if (selectedNodePath === null) return
+        const previewEl = root.querySelector("layout-preview") as any
+        if (!previewEl) return
+        const tree = parseLayoutNode(previewEl.content)
+        if (!tree) return
+        const newTree = updateItemWidth(tree, selectedNodePath, e.detail.width)
+        if (!newTree) return
+        updateAll(JSON.stringify(newTree, null, 2))
+      }) as EventListener
+
+      const heightChangeHandler = ((e: Event) => {
+        if (!(e instanceof CustomEvent)) return
+        if (selectedNodePath === null) return
+        const previewEl = root.querySelector("layout-preview") as any
+        if (!previewEl) return
+        const tree = parseLayoutNode(previewEl.content)
+        if (!tree) return
+        const newTree = updateItemHeight(tree, selectedNodePath, e.detail.height)
+        if (!newTree) return
+        updateAll(JSON.stringify(newTree, null, 2))
+      }) as EventListener
+
       const nodeDeleteHandler = ((_e: Event) => {
         if (selectedNodePath === null) return
         const previewEl = root.querySelector("layout-preview") as any
@@ -249,6 +326,8 @@ const LayoutLivePreview = defineElement(
           inspector.nodeId = ""
           inspector.nodeDirection = ""
           inspector.nodeSize = ""
+          inspector.nodeWidth = ""
+          inspector.nodeHeight = ""
         }
       }) as EventListener
 
@@ -262,12 +341,15 @@ const LayoutLivePreview = defineElement(
       inspectorEl?.addEventListener("direction-change", directionChangeHandler)
       inspectorEl?.addEventListener("size-change", sizeChangeHandler)
       inspectorEl?.addEventListener("node-delete", nodeDeleteHandler)
+      inspectorEl?.addEventListener("width-change", widthChangeHandler)
+      inspectorEl?.addEventListener("height-change", heightChangeHandler)
 
       root.addEventListener("mousedown", toolboxMousedownHandler)
       root.addEventListener("mousemove", toolboxMousemoveHandler)
       root.addEventListener("mouseup", toolboxMouseupHandler)
 
       return () => {
+        headerEl?.removeEventListener("click", toggleClickHandler)
         editor.removeEventListener("input", inputHandler)
         previewEl?.removeEventListener("layout-change", layoutChangeHandler)
         previewEl?.removeEventListener("node-select", nodeSelectHandler)
@@ -275,6 +357,8 @@ const LayoutLivePreview = defineElement(
         inspectorEl?.removeEventListener("direction-change", directionChangeHandler)
         inspectorEl?.removeEventListener("size-change", sizeChangeHandler)
         inspectorEl?.removeEventListener("node-delete", nodeDeleteHandler)
+        inspectorEl?.removeEventListener("width-change", widthChangeHandler)
+        inspectorEl?.removeEventListener("height-change", heightChangeHandler)
         root.removeEventListener("mousedown", toolboxMousedownHandler)
         root.removeEventListener("mousemove", toolboxMousemoveHandler)
         root.removeEventListener("mouseup", toolboxMouseupHandler)
@@ -284,12 +368,16 @@ const LayoutLivePreview = defineElement(
     return `<div class="flex flex-col h-full">
   <header class="flex items-center justify-between px-4 py-2 bg-gray-100 border-b border-gray-200">
     <h1 class="text-lg font-semibold text-gray-800">Layout Live Preview</h1>
+    <div class="toggle-group">
+      <button class="toggle-btn active" data-mode="preview">Preview</button>
+      <button class="toggle-btn" data-mode="editor">JSON</button>
+    </div>
   </header>
   <div class="flex flex-1 min-h-0">
-    <div class="w-1/2 border-r border-gray-200">
+    <div data-panel="editor" class="w-full border-r border-gray-200" style="display:none">
       <layout-editor></layout-editor>
     </div>
-    <div class="w-1/2 overflow-auto relative">
+    <div data-panel="preview" class="w-full overflow-auto relative">
       <layout-preview></layout-preview>
       <layout-toolbox class="absolute top-2 right-2 z-50"></layout-toolbox>
       <layout-node-inspector class="absolute bottom-2 right-2 z-50"></layout-node-inspector>

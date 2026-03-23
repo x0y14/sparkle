@@ -8,6 +8,8 @@ const LayoutNodeInspector = defineElement(
       nodeId: { type: String, value: () => "" },
       nodeDirection: { type: String, value: () => "" },
       nodeSize: { type: String, value: () => "" },
+      nodeWidth: { type: String, value: () => "" },
+      nodeHeight: { type: String, value: () => "" },
     },
     styles: css`@unocss-placeholder
 :host { @apply block; }`,
@@ -17,6 +19,8 @@ const LayoutNodeInspector = defineElement(
     const dispatchIdChange = useEvent<{ id: string }>("id-change", { bubbles: true, composed: true })
     const dispatchDirectionChange = useEvent<{ direction: string }>("direction-change", { bubbles: true, composed: true })
     const dispatchSizeChange = useEvent<{ size: string }>("size-change", { bubbles: true, composed: true })
+    const dispatchWidthChange = useEvent<{ width: string }>("width-change", { bubbles: true, composed: true })
+    const dispatchHeightChange = useEvent<{ height: string }>("height-change", { bubbles: true, composed: true })
     const dispatchNodeDelete = useEvent("node-delete", { bubbles: true, composed: true })
 
     useEffect(() => {
@@ -30,9 +34,13 @@ const LayoutNodeInspector = defineElement(
           dispatchDirectionChange({ direction: input.value })
         } else if (field === "size") {
           dispatchSizeChange({ size: input.value })
+        } else if (field === "width") {
+          dispatchWidthChange({ width: input.value })
+        } else if (field === "height") {
+          dispatchHeightChange({ height: input.value })
         }
       }
-      const clickHandler = (e: MouseEvent) => {
+      const clickHandler = (e: Event) => {
         const btn = (e.target as Element).closest("[data-action='delete']")
         if (btn) dispatchNodeDelete(undefined)
       }
@@ -54,6 +62,14 @@ const LayoutNodeInspector = defineElement(
   <div data-field="id" class="flex items-center gap-2">
     <span class="text-gray-500">id:</span>
     <input type="text" value="${props.nodeId}" class="border border-gray-300 rounded px-2 py-1 text-sm flex-1" />
+  </div>
+  <div data-field="width" class="flex items-center gap-2">
+    <span class="text-gray-500">width:</span>
+    <input type="text" value="${props.nodeWidth}" class="border border-gray-300 rounded px-2 py-1 text-sm flex-1" />
+  </div>
+  <div data-field="height" class="flex items-center gap-2">
+    <span class="text-gray-500">height:</span>
+    <input type="text" value="${props.nodeHeight}" class="border border-gray-300 rounded px-2 py-1 text-sm flex-1" />
   </div>
   ${deleteBtn}
 </div>`

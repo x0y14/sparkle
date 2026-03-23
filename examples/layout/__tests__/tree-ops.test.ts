@@ -1,15 +1,15 @@
 import { describe, it, expect } from "vitest"
-import { parsePath, getNode, removeNode, insertNode, moveNode, isAncestorPath, updateItemId, updateLayoutDirection, updateSpacerSize } from "../src/utils/tree-ops"
+import { parsePath, getNode, removeNode, insertNode, moveNode, isAncestorPath, updateItemId, updateLayoutDirection, updateSpacerSize, updateItemWidth, updateItemHeight } from "../src/utils/tree-ops"
 import type { LayoutNode } from "../src/utils/layout-parser"
 
 const tree: LayoutNode = {
   type: "layout", direction: "vertical", children: [
-    { type: "item", id: "a" },
+    { type: "item", id: "a", width: "auto", height: "auto" },
     { type: "layout", direction: "horizontal", children: [
-      { type: "item", id: "b" },
-      { type: "item", id: "c" },
+      { type: "item", id: "b", width: "auto", height: "auto" },
+      { type: "item", id: "c", width: "auto", height: "auto" },
     ]},
-    { type: "item", id: "d" },
+    { type: "item", id: "d", width: "auto", height: "auto" },
   ]
 }
 
@@ -30,10 +30,10 @@ describe("getNode", () => {
     expect(getNode(tree, "")).toBe(tree)
   })
   it("直接の子を取得", () => {
-    expect(getNode(tree, "0")).toEqual({ type: "item", id: "a" })
+    expect(getNode(tree, "0")).toEqual({ type: "item", id: "a", width: "auto", height: "auto" })
   })
   it("ネストした子を取得", () => {
-    expect(getNode(tree, "1.1")).toEqual({ type: "item", id: "c" })
+    expect(getNode(tree, "1.1")).toEqual({ type: "item", id: "c", width: "auto", height: "auto" })
   })
   it("存在しないパスはnull", () => {
     expect(getNode(tree, "5")).toBeNull()
@@ -49,7 +49,7 @@ describe("removeNode", () => {
   })
   it("直接の子を削除", () => {
     const result = removeNode(tree, "0")!
-    expect(result.removed).toEqual({ type: "item", id: "a" })
+    expect(result.removed).toEqual({ type: "item", id: "a", width: "auto", height: "auto" })
     expect(result.tree.type).toBe("layout")
     if (result.tree.type === "layout") {
       expect(result.tree.children).toHaveLength(2)
@@ -57,7 +57,7 @@ describe("removeNode", () => {
   })
   it("ネストした子を削除", () => {
     const result = removeNode(tree, "1.0")!
-    expect(result.removed).toEqual({ type: "item", id: "b" })
+    expect(result.removed).toEqual({ type: "item", id: "b", width: "auto", height: "auto" })
   })
   it("存在しないパスはnull", () => {
     expect(removeNode(tree, "99")).toBeNull()
@@ -70,7 +70,7 @@ describe("removeNode", () => {
 })
 
 describe("insertNode", () => {
-  const newItem: LayoutNode = { type: "item", id: "x" }
+  const newItem: LayoutNode = { type: "item", id: "x", width: "auto", height: "auto" }
 
   it("ルートの先頭に挿入", () => {
     const result = insertNode(tree, "", 0, newItem)!
@@ -130,14 +130,14 @@ describe("moveNode", () => {
       const inner = result.children[0]
       if (inner.type === "layout") {
         expect(inner.children).toHaveLength(3)
-        expect(inner.children[0]).toEqual({ type: "item", id: "a" })
+        expect(inner.children[0]).toEqual({ type: "item", id: "a", width: "auto", height: "auto" })
       }
     }
   })
   it("ネストからルートに移動", () => {
     const result = moveNode(tree, "1.1", "", 0)!
     if (result.type === "layout") {
-      expect(result.children[0]).toEqual({ type: "item", id: "c" })
+      expect(result.children[0]).toEqual({ type: "item", id: "c", width: "auto", height: "auto" })
       expect(result.children).toHaveLength(4)
     }
   })
@@ -145,7 +145,7 @@ describe("moveNode", () => {
     const result = moveNode(tree, "0", "", 2)!
     if (result.type === "layout") {
       expect(result.children).toHaveLength(3)
-      expect(result.children[1]).toEqual({ type: "item", id: "a" })
+      expect(result.children[1]).toEqual({ type: "item", id: "a", width: "auto", height: "auto" })
     }
   })
   it("同じ位置への移動はnull", () => {
@@ -161,7 +161,7 @@ describe("updateItemId", () => {
   it("itemのidを変更", () => {
     const result = updateItemId(tree, "0", "new-id")!
     const node = getNode(result, "0")
-    expect(node).toEqual({ type: "item", id: "new-id" })
+    expect(node).toEqual({ type: "item", id: "new-id", width: "auto", height: "auto" })
   })
   it("layoutパスにはnull", () => {
     expect(updateItemId(tree, "1", "x")).toBeNull()
@@ -195,7 +195,7 @@ describe("updateSpacerSize", () => {
   const spacerTree: import("../src/utils/layout-parser").LayoutNode = {
     type: "layout", direction: "vertical", children: [
       { type: "spacer", size: "1/2" },
-      { type: "item", id: "a" },
+      { type: "item", id: "a", width: "auto", height: "auto" },
     ]
   }
 
@@ -211,5 +211,41 @@ describe("updateSpacerSize", () => {
     const original = JSON.stringify(spacerTree)
     updateSpacerSize(spacerTree, "0", "1/3")
     expect(JSON.stringify(spacerTree)).toBe(original)
+  })
+})
+
+describe("updateItemWidth", () => {
+  it("itemのwidthを変更", () => {
+    const result = updateItemWidth(tree, "0", "100px")!
+    const node = getNode(result, "0")
+    if (node?.type === "item") {
+      expect(node.width).toBe("100px")
+    }
+  })
+  it("layoutパスにはnull", () => {
+    expect(updateItemWidth(tree, "1", "100px")).toBeNull()
+  })
+  it("元のツリーは変更されない", () => {
+    const original = JSON.stringify(tree)
+    updateItemWidth(tree, "0", "100px")
+    expect(JSON.stringify(tree)).toBe(original)
+  })
+})
+
+describe("updateItemHeight", () => {
+  it("itemのheightを変更", () => {
+    const result = updateItemHeight(tree, "0", "50px")!
+    const node = getNode(result, "0")
+    if (node?.type === "item") {
+      expect(node.height).toBe("50px")
+    }
+  })
+  it("layoutパスにはnull", () => {
+    expect(updateItemHeight(tree, "1", "50px")).toBeNull()
+  })
+  it("元のツリーは変更されない", () => {
+    const original = JSON.stringify(tree)
+    updateItemHeight(tree, "0", "50px")
+    expect(JSON.stringify(tree)).toBe(original)
   })
 })

@@ -14,7 +14,7 @@ describe("parseLayoutNode", () => {
 
   it("parses a valid Item", () => {
     const result = parseLayoutNode('{"type":"item","id":"a"}')
-    expect(result).toEqual({ type: "item", id: "a" })
+    expect(result).toEqual({ type: "item", id: "a", width: "auto", height: "auto" })
   })
 
   it("returns null for missing required fields", () => {
@@ -36,13 +36,13 @@ describe("parseLayoutNode", () => {
       type: "layout",
       direction: "vertical",
       children: [
-        { type: "item", id: "a" },
+        { type: "item", id: "a", width: "auto", height: "auto" },
         {
           type: "layout",
           direction: "horizontal",
           children: [
-            { type: "item", id: "b" },
-            { type: "item", id: "c" },
+            { type: "item", id: "b", width: "auto", height: "auto" },
+            { type: "item", id: "c", width: "auto", height: "auto" },
           ],
         },
       ],
@@ -52,9 +52,19 @@ describe("parseLayoutNode", () => {
     expect(result!.type).toBe("layout")
     if (result!.type === "layout") {
       expect(result!.children).toHaveLength(2)
-      expect(result!.children[0]).toEqual({ type: "item", id: "a" })
+      expect(result!.children[0]).toEqual({ type: "item", id: "a", width: "auto", height: "auto" })
       expect(result!.children[1].type).toBe("layout")
     }
+  })
+
+  it("parses an Item with width and height", () => {
+    const result = parseLayoutNode('{"type":"item","id":"a","width":"100px","height":"50px"}')
+    expect(result).toEqual({ type: "item", id: "a", width: "100px", height: "50px" })
+  })
+
+  it("parses an Item without width/height (defaults to auto)", () => {
+    const result = parseLayoutNode('{"type":"item","id":"a"}')
+    expect(result).toEqual({ type: "item", id: "a", width: "auto", height: "auto" })
   })
 
   it("rejects Layout with invalid children", () => {
@@ -74,7 +84,7 @@ describe("parseLayoutNode", () => {
 
 describe("renderLayoutNode", () => {
   it("renders an Item with data-node-type and data-node-id attributes", () => {
-    const html = renderLayoutNode({ type: "item", id: "a" })
+    const html = renderLayoutNode({ type: "item", id: "a", width: "auto", height: "auto" })
     expect(html).toContain('data-node-type="item"')
     expect(html).toContain('data-node-id="a"')
     expect(html).toContain("a")
@@ -83,7 +93,7 @@ describe("renderLayoutNode", () => {
   it("renders children with flex-1", () => {
     const html = renderLayoutNode({
       type: "layout", direction: "horizontal",
-      children: [{ type: "item", id: "a" }],
+      children: [{ type: "item", id: "a", width: "auto", height: "auto" }],
     })
     expect(html).toContain("flex-1")
   })
@@ -92,7 +102,7 @@ describe("renderLayoutNode", () => {
     const html = renderLayoutNode({
       type: "layout",
       direction: "horizontal",
-      children: [{ type: "item", id: "x" }],
+      children: [{ type: "item", id: "x", width: "auto", height: "auto" }],
     })
     expect(html).toContain("flex-row")
     expect(html).toContain('data-node-type="layout"')
@@ -103,7 +113,7 @@ describe("renderLayoutNode", () => {
     const html = renderLayoutNode({
       type: "layout",
       direction: "vertical",
-      children: [{ type: "item", id: "x" }],
+      children: [{ type: "item", id: "x", width: "auto", height: "auto" }],
     })
     expect(html).toContain("flex-col")
     expect(html).toContain('data-direction="vertical"')
@@ -114,13 +124,13 @@ describe("renderLayoutNode", () => {
       type: "layout",
       direction: "vertical",
       children: [
-        { type: "item", id: "a" },
+        { type: "item", id: "a", width: "auto", height: "auto" },
         {
           type: "layout",
           direction: "horizontal",
           children: [
-            { type: "item", id: "b" },
-            { type: "item", id: "c" },
+            { type: "item", id: "b", width: "auto", height: "auto" },
+            { type: "item", id: "c", width: "auto", height: "auto" },
           ],
         },
       ],
@@ -132,8 +142,24 @@ describe("renderLayoutNode", () => {
     expect(html).toContain("flex-row")
   })
 
+  it("renders an Item with width and height style", () => {
+    const html = renderLayoutNode({ type: "item", id: "a", width: "100px", height: "50px" })
+    expect(html).toContain("width: 100px")
+    expect(html).toContain("height: 50px")
+    expect(html).not.toContain("flex-1")
+    expect(html).toContain("flex-none")
+  })
+
+  it("renders an Item with auto width/height without explicit style", () => {
+    const html = renderLayoutNode({ type: "item", id: "a", width: "auto", height: "auto" })
+    expect(html).not.toContain("width:")
+    expect(html).not.toContain("height:")
+    expect(html).toContain("flex-1")
+    expect(html).not.toContain("flex-none")
+  })
+
   it("escapes HTML in id", () => {
-    const html = renderLayoutNode({ type: "item", id: '<script>alert("xss")</script>' })
+    const html = renderLayoutNode({ type: "item", id: '<script>alert("xss")</script>', width: "auto", height: "auto" })
     expect(html).not.toContain("<script>")
     expect(html).toContain("&lt;script&gt;")
   })
@@ -155,13 +181,13 @@ describe("renderLayoutNode", () => {
 
 describe("renderLayoutNodeWithPath", () => {
   it("Itemにdata-path属性を付与", () => {
-    const html = renderLayoutNodeWithPath({ type: "item", id: "a" })
+    const html = renderLayoutNodeWithPath({ type: "item", id: "a", width: "auto", height: "auto" })
     expect(html).toContain('data-path=""')
     expect(html).toContain('data-node-id="a"')
   })
 
   it("Itemにcursor-grabクラスを付与", () => {
-    const html = renderLayoutNodeWithPath({ type: "item", id: "a" })
+    const html = renderLayoutNodeWithPath({ type: "item", id: "a", width: "auto", height: "auto" })
     expect(html).toContain("cursor-grab")
   })
 
@@ -169,8 +195,8 @@ describe("renderLayoutNodeWithPath", () => {
     const html = renderLayoutNodeWithPath({
       type: "layout", direction: "vertical",
       children: [
-        { type: "item", id: "a" },
-        { type: "item", id: "b" },
+        { type: "item", id: "a", width: "auto", height: "auto" },
+        { type: "item", id: "b", width: "auto", height: "auto" },
       ],
     })
     expect(html).toContain('data-path=""')
@@ -183,7 +209,7 @@ describe("renderLayoutNodeWithPath", () => {
       type: "layout", direction: "vertical",
       children: [
         { type: "layout", direction: "horizontal", children: [
-          { type: "item", id: "x" },
+          { type: "item", id: "x", width: "auto", height: "auto" },
         ]},
       ],
     })
@@ -203,14 +229,26 @@ describe("renderLayoutNodeWithPath", () => {
     expect(html).toContain("flex: 1 1 0%")
     expect(html).toContain('data-path="0"')
   })
+
+  it("Itemのwidth/heightをstyleに反映", () => {
+    const html = renderLayoutNodeWithPath({ type: "item", id: "a", width: "200px", height: "100px" })
+    expect(html).toContain("width: 200px")
+    expect(html).toContain("height: 100px")
+    expect(html).toContain('data-item-width="200px"')
+    expect(html).toContain('data-item-height="100px"')
+    expect(html).not.toContain("flex-1")
+    expect(html).toContain("flex-none")
+  })
 })
 
 describe("createNewNode", () => {
-  it("item生成: type=item, idがitem-で始まる8文字UUID", () => {
+  it("item生成: type=item, idがitem-で始まる8文字UUID, width/height=auto", () => {
     const node = createNewNode("item")
     expect(node.type).toBe("item")
     if (node.type === "item") {
       expect(node.id).toMatch(/^item-[a-f0-9]{8}$/)
+      expect(node.width).toBe("auto")
+      expect(node.height).toBe("auto")
     }
   })
 

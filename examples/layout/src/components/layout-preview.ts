@@ -48,6 +48,8 @@ const LayoutPreview = defineElement(
       nodeId?: string
       direction?: string
       spacerSize?: string
+      itemWidth?: string
+      itemHeight?: string
     }>("node-select", { bubbles: true, composed: true })
 
     useEffect(() => {
@@ -87,29 +89,31 @@ const LayoutPreview = defineElement(
         }
       }
 
-      const mousedownHandler = (e: MouseEvent) => {
-        const target = (e.target as Element).closest("[data-node-type='item'], [data-node-type='spacer']") as HTMLElement | null
+      const mousedownHandler = (e: Event) => {
+        const me = e as MouseEvent
+        const target = (me.target as Element).closest("[data-node-type='item'], [data-node-type='spacer']") as HTMLElement | null
         if (!target) return
         const path = target.getAttribute("data-path")
         if (path == null) return
         const nodeId = target.getAttribute("data-node-id") ?? ""
 
         const rect = target.getBoundingClientRect()
-        dragState = beginLayoutDrag(path, nodeId, e.clientX, e.clientY, rect.left, rect.top)
+        dragState = beginLayoutDrag(path, nodeId, me.clientX, me.clientY, rect.left, rect.top)
         draggedEl = target
         target.style.opacity = "0.4"
-        e.preventDefault()
+        me.preventDefault()
       }
 
-      const mousemoveHandler = (e: MouseEvent) => {
+      const mousemoveHandler = (e: Event) => {
+        const me = e as MouseEvent
         if (!dragState) return
-        moveLayoutDrag(dragState, e.clientX, e.clientY)
+        moveLayoutDrag(dragState, me.clientX, me.clientY)
 
         clearVisualFeedback()
         if (draggedEl) draggedEl.style.opacity = "0.4"
 
         const layouts = extractLayoutGeometry(root)
-        const drop = findDropTarget(layouts, e.clientX, e.clientY, dragState.sourcePath)
+        const drop = findDropTarget(layouts, me.clientX, me.clientY, dragState.sourcePath)
         currentDropResult = drop
 
         if (drop) {
@@ -123,7 +127,7 @@ const LayoutPreview = defineElement(
         }
       }
 
-      const mouseupHandler = (_e: MouseEvent) => {
+      const mouseupHandler = (_e: Event) => {
         if (!dragState) return
         const drop = currentDropResult
         clearVisualFeedback()
@@ -143,7 +147,7 @@ const LayoutPreview = defineElement(
       }
 
       // --- click選択 ---
-      const clickHandler = (e: MouseEvent) => {
+      const clickHandler = (e: Event) => {
         if (dragState) return
         const target = (e.target as Element).closest("[data-path]") as HTMLElement | null
         if (!target) return
@@ -163,7 +167,12 @@ const LayoutPreview = defineElement(
         target.classList.add("node-selected")
 
         if (nodeType === "item") {
-          dispatchNodeSelect({ path, nodeType, nodeId: target.getAttribute("data-node-id") ?? "" })
+          dispatchNodeSelect({
+            path, nodeType,
+            nodeId: target.getAttribute("data-node-id") ?? "",
+            itemWidth: target.getAttribute("data-item-width") ?? "auto",
+            itemHeight: target.getAttribute("data-item-height") ?? "auto",
+          })
         } else if (nodeType === "spacer") {
           dispatchNodeSelect({ path, nodeType, spacerSize: target.getAttribute("data-spacer-size") ?? "" })
         } else {
@@ -172,7 +181,7 @@ const LayoutPreview = defineElement(
       }
 
       // --- hoverハイライト ---
-      const hoverHandler = (e: MouseEvent) => {
+      const hoverHandler = (e: Event) => {
         if (dragState) return
         for (const el of root.querySelectorAll(".node-hover")) el.classList.remove("node-hover")
         const target = (e.target as Element).closest("[data-path]") as HTMLElement | null

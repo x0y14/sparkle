@@ -45,7 +45,7 @@ export function findDropTarget(
   return null
 }
 
-export function extractLayoutGeometry(root: Element): LayoutGeometry[] {
+export function extractLayoutGeometry(root: Element | ShadowRoot): LayoutGeometry[] {
   const layouts: LayoutGeometry[] = []
   const elements = root.querySelectorAll("[data-node-type='layout']")
   for (const el of elements) {

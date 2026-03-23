@@ -96,4 +96,117 @@ describe("layout-live-preview", () => {
     const ta = sq(editor, "textarea") as HTMLTextAreaElement
     expect(ta.value).toContain('"moved"')
   })
+
+  describe("view mode toggle", () => {
+    it("shows toggle buttons in header", async () => {
+      el = await createElement("layout-live-preview")
+      expect(sq(el, "button[data-mode='preview']")).not.toBeNull()
+      expect(sq(el, "button[data-mode='editor']")).not.toBeNull()
+    })
+
+    it("hides editor panel by default", async () => {
+      el = await createElement("layout-live-preview")
+      const editorPanel = sq(el, "[data-panel='editor']") as HTMLElement
+      expect(editorPanel.style.display).toBe("none")
+    })
+
+    it("shows preview panel by default", async () => {
+      el = await createElement("layout-live-preview")
+      const previewPanel = sq(el, "[data-panel='preview']") as HTMLElement
+      expect(previewPanel.style.display).not.toBe("none")
+    })
+
+    it("preview button is active by default", async () => {
+      el = await createElement("layout-live-preview")
+      const previewBtn = sq(el, "button[data-mode='preview']") as HTMLElement
+      const editorBtn = sq(el, "button[data-mode='editor']") as HTMLElement
+      expect(previewBtn.classList.contains("active")).toBe(true)
+      expect(editorBtn.classList.contains("active")).toBe(false)
+    })
+
+    it("switches to editor view on editor button click", async () => {
+      el = await createElement("layout-live-preview")
+      const editorBtn = sq(el, "button[data-mode='editor']") as HTMLElement
+      editorBtn.click()
+      await new Promise((r) => setTimeout(r, 0))
+      const editorPanel = sq(el, "[data-panel='editor']") as HTMLElement
+      const previewPanel = sq(el, "[data-panel='preview']") as HTMLElement
+      expect(editorPanel.style.display).not.toBe("none")
+      expect(previewPanel.style.display).toBe("none")
+    })
+
+    it("switches back to preview on preview button click", async () => {
+      el = await createElement("layout-live-preview")
+      const editorBtn = sq(el, "button[data-mode='editor']") as HTMLElement
+      const previewBtn = sq(el, "button[data-mode='preview']") as HTMLElement
+      editorBtn.click()
+      await new Promise((r) => setTimeout(r, 0))
+      previewBtn.click()
+      await new Promise((r) => setTimeout(r, 0))
+      const editorPanel = sq(el, "[data-panel='editor']") as HTMLElement
+      const previewPanel = sq(el, "[data-panel='preview']") as HTMLElement
+      expect(editorPanel.style.display).toBe("none")
+      expect(previewPanel.style.display).not.toBe("none")
+    })
+
+    it("toggles active class on buttons", async () => {
+      el = await createElement("layout-live-preview")
+      const editorBtn = sq(el, "button[data-mode='editor']") as HTMLElement
+      const previewBtn = sq(el, "button[data-mode='preview']") as HTMLElement
+      editorBtn.click()
+      await new Promise((r) => setTimeout(r, 0))
+      expect(editorBtn.classList.contains("active")).toBe(true)
+      expect(previewBtn.classList.contains("active")).toBe(false)
+    })
+
+    it("keeps data in sync after toggling", async () => {
+      el = await createElement("layout-live-preview")
+      // editor モードに切り替え
+      const editorBtn = sq(el, "button[data-mode='editor']") as HTMLElement
+      editorBtn.click()
+      await new Promise((r) => setTimeout(r, 0))
+      // editor に JSON を入力
+      const editor = sq(el, "layout-editor") as HTMLElement
+      const ta = sq(editor, "textarea") as HTMLTextAreaElement
+      ta.value = '{"type":"item","id":"synced"}'
+      ta.dispatchEvent(new Event("input", { bubbles: true }))
+      await new Promise((r) => setTimeout(r, 50))
+      // preview モードに切り替え
+      const previewBtn = sq(el, "button[data-mode='preview']") as HTMLElement
+      previewBtn.click()
+      await new Promise((r) => setTimeout(r, 0))
+      // preview に反映されている
+      const preview = sq(el, "layout-preview") as HTMLElement
+      expect(sq(preview, "[data-node-id='synced']")).not.toBeNull()
+    })
+  })
+
+  it("updates item width via inspector", async () => {
+    el = await createElement("layout-live-preview")
+    // editor モードに切り替え
+    const editorBtn = sq(el, "button[data-mode='editor']") as HTMLElement
+    editorBtn.click()
+    await new Promise((r) => setTimeout(r, 0))
+    // editor に JSON を入力
+    const editor = sq(el, "layout-editor") as HTMLElement
+    const ta = sq(editor, "textarea") as HTMLTextAreaElement
+    ta.value = '{"type":"item","id":"test","width":"auto","height":"auto"}'
+    ta.dispatchEvent(new Event("input", { bubbles: true }))
+    await new Promise((r) => setTimeout(r, 50))
+    // preview モードに切り替えて item を選択
+    const previewBtn = sq(el, "button[data-mode='preview']") as HTMLElement
+    previewBtn.click()
+    await new Promise((r) => setTimeout(r, 0))
+    const preview = sq(el, "layout-preview") as HTMLElement
+    const item = sq(preview, "[data-node-id='test']") as HTMLElement
+    item.click()
+    await new Promise((r) => setTimeout(r, 50))
+    // inspector から width 変更
+    const inspector = sq(el, "layout-node-inspector") as HTMLElement
+    inspector.dispatchEvent(new CustomEvent("width-change", {
+      detail: { width: "200px" }, bubbles: true, composed: true,
+    }))
+    await new Promise((r) => setTimeout(r, 50))
+    expect(ta.value).toContain('"200px"')
+  })
 })
