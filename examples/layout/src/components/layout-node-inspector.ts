@@ -1,4 +1,5 @@
 import { defineElement, css, useEffect, useHost, useEvent } from "@sparkio/core"
+import { AVAILABLE_COMPONENTS } from "../utils/layout-parser"
 
 const LayoutNodeInspector = defineElement(
   {
@@ -12,6 +13,7 @@ const LayoutNodeInspector = defineElement(
       nodeRatioH: { type: String, value: () => "" },
       nodeRemW: { type: String, value: () => "" },
       nodeRemH: { type: String, value: () => "" },
+      nodeComponent: { type: String, value: () => "" },
     },
     styles: css`@unocss-placeholder
 :host { @apply block; }`,
@@ -21,6 +23,7 @@ const LayoutNodeInspector = defineElement(
     const dispatchIdChange = useEvent<{ id: string }>("id-change", { bubbles: true, composed: true })
     const dispatchDirectionChange = useEvent<{ direction: string }>("direction-change", { bubbles: true, composed: true })
     const dispatchSizingChange = useEvent<{ sizing: string; ratioW?: string; ratioH?: string; remW?: number; remH?: number; _convert?: boolean }>("sizing-change", { bubbles: true, composed: true })
+    const dispatchComponentChange = useEvent<{ component: string | undefined }>("component-change", { bubbles: true, composed: true })
     const dispatchNodeDelete = useEvent("node-delete", { bubbles: true, composed: true })
 
     useEffect(() => {
@@ -48,6 +51,8 @@ const LayoutNodeInspector = defineElement(
           const rw = (root.querySelector("[data-field='remW'] input") as HTMLInputElement)?.value
           const rh = (root.querySelector("[data-field='remH'] input") as HTMLInputElement)?.value
           dispatchSizingChange({ sizing: "rem", remW: rw ? parseFloat(rw) : 10, remH: rh ? parseFloat(rh) : 5 })
+        } else if (field === "component") {
+          dispatchComponentChange({ component: (input as HTMLSelectElement).value || undefined })
         }
       }
       const clickHandler = (e: Event) => {
@@ -94,6 +99,17 @@ const LayoutNodeInspector = defineElement(
     <input type="number" step="0.5" value="${props.nodeRemH}" class="border border-gray-300 rounded px-2 py-1 text-sm flex-1" />
   </div>` : ""
 
+    const componentOptions = AVAILABLE_COMPONENTS.map(c =>
+      `<option value="${c.tag}"${props.nodeComponent === c.tag ? " selected" : ""}>${c.label}</option>`
+    ).join("")
+    const componentSelect = `<div data-field="component" class="flex items-center gap-2">
+    <span class="text-gray-500">component:</span>
+    <select class="border border-gray-300 rounded px-2 py-1 text-sm flex-1">
+      <option value=""${!props.nodeComponent ? " selected" : ""}>none</option>
+      ${componentOptions}
+    </select>
+  </div>`
+
     if (props.nodeType === "item") {
       return `<div data-inspector class="bg-white shadow-lg rounded-lg p-3 text-sm flex flex-col gap-2">
   <div data-field="type" class="text-gray-500">item</div>
@@ -101,6 +117,7 @@ const LayoutNodeInspector = defineElement(
     <span class="text-gray-500">id:</span>
     <input type="text" value="${props.nodeId}" class="border border-gray-300 rounded px-2 py-1 text-sm flex-1" />
   </div>
+  ${componentSelect}
   ${sizingSelect}
   ${ratioFields}
   ${remFields}

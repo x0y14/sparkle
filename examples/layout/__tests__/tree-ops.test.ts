@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest"
-import { parsePath, getNode, removeNode, insertNode, moveNode, isAncestorPath, updateItemId, updateLayoutDirection, updateNodeSizing } from "../src/utils/tree-ops"
+import { parsePath, getNode, removeNode, insertNode, moveNode, isAncestorPath, updateItemId, updateLayoutDirection, updateNodeSizing, updateItemComponent } from "../src/utils/tree-ops"
 import type { LayoutNode } from "../src/utils/layout-parser"
 
 const tree: LayoutNode = {
@@ -138,5 +138,24 @@ describe("updateNodeSizing", () => {
     const original = JSON.stringify(tree)
     updateNodeSizing(tree, "0", { sizing: "rem", remW: 10, remH: 5 })
     expect(JSON.stringify(tree)).toBe(original)
+  })
+})
+
+describe("updateItemComponent", () => {
+  it("itemにcomponentを設定", () => {
+    const result = updateItemComponent(tree, "0", "ui-button")!
+    const node = getNode(result, "0")!
+    if (node.type === "item") expect(node.component).toBe("ui-button")
+  })
+
+  it("componentをundefinedで解除", () => {
+    const withComponent = updateItemComponent(tree, "0", "ui-button")!
+    const result = updateItemComponent(withComponent, "0", undefined)!
+    const node = getNode(result, "0")!
+    if (node.type === "item") expect(node.component).toBeUndefined()
+  })
+
+  it("layoutパスにはnull", () => {
+    expect(updateItemComponent(tree, "1", "ui-button")).toBeNull()
   })
 })

@@ -152,3 +152,22 @@ export function updateNodeSizing(
   Object.assign(current, newSizing)
   return cloned
 }
+
+export function updateItemComponent(tree: LayoutNode, path: NodePath, component: string | undefined): LayoutNode | null {
+  const node = getNode(tree, path)
+  if (!node || node.type !== "item") return null
+  const cloned = cloneTree(tree)
+  let current: LayoutNode = cloned
+  const indices = parsePath(path)
+  for (const i of indices) {
+    if (current.type !== "layout") return null
+    current = current.children[i]
+  }
+  if (current.type !== "item") return null
+  if (component) {
+    current.component = component
+  } else {
+    delete current.component
+  }
+  return cloned
+}

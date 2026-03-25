@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest"
-import { parseLayoutDocument, renderResolvedNode, renderResolvedNodeWithPath } from "../src/utils/layout-parser"
+import { parseLayoutDocument, renderResolvedNode, renderResolvedNodeWithPath, renderComponentView } from "../src/utils/layout-parser"
 import type { ResolvedNode } from "../src/utils/compute-layout"
 
 describe("parseLayoutDocument", () => {
@@ -194,6 +194,26 @@ describe("parseLayoutDocument", () => {
       node: { type: "layout", direction: "vertical" },
     }))).toBeNull()
   })
+
+  it("parses Item with component", () => {
+    const doc = parseLayoutDocument(JSON.stringify({
+      settings: { gap: 8, padding: 8 },
+      node: { type: "item", id: "a", sizing: "auto", component: "ui-button" },
+    }))!
+    if (doc.node.type === "item") {
+      expect(doc.node.component).toBe("ui-button")
+    }
+  })
+
+  it("parses Item without component", () => {
+    const doc = parseLayoutDocument(JSON.stringify({
+      settings: { gap: 8, padding: 8 },
+      node: { type: "item", id: "a", sizing: "auto" },
+    }))!
+    if (doc.node.type === "item") {
+      expect(doc.node.component).toBeUndefined()
+    }
+  })
 })
 
 describe("renderResolvedNode", () => {
@@ -258,5 +278,64 @@ describe("renderResolvedNodeWithPath", () => {
     expect(html).toContain('data-path=""')
     expect(html).toContain('data-path="0"')
     expect(html).toContain('data-path="1"')
+  })
+})
+
+describe("renderComponentView", () => {
+  it("component割り当てありのItemはコンポーネントタグで描画", () => {
+    const resolved: ResolvedNode = {
+      node: { type: "item", id: "a", sizing: "auto", component: "ui-button" },
+      x: 10, y: 20, w: 200, h: 40,
+    }
+    const html = renderComponentView(resolved)
+    expect(html).toContain("<ui-button")
+    expect(html).toContain("position: absolute")
+    expect(html).toContain("left: 10px")
+    expect(html).toContain("width: 200px")
+    expect(html).toContain("height: 40px")
+  })
+
+  it("component割り当てなしのItemは空divで描画", () => {
+    const resolved: ResolvedNode = {
+      node: { type: "item", id: "a", sizing: "auto" },
+      x: 10, y: 20, w: 200, h: 40,
+    }
+    const html = renderComponentView(resolved)
+    expect(html).not.toContain("<ui-")
+    expect(html).toContain("position: absolute")
+  })
+
+  it("Spacerは空文字列", () => {
+    const resolved: ResolvedNode = {
+      node: { type: "spacer", sizing: "auto" },
+      x: 0, y: 0, w: 100, h: 100,
+    }
+    expect(renderComponentView(resolved)).toBe("")
+  })
+
+  it("Layoutは子のみ描画（枠線なし）", () => {
+    const resolved: ResolvedNode = {
+      node: { type: "layout", direction: "vertical", sizing: "auto", children: [] },
+      x: 0, y: 0, w: 800, h: 600,
+      children: [
+        { node: { type: "item", id: "a", sizing: "auto", component: "ui-button" }, x: 8, y: 8, w: 200, h: 40 },
+      ],
+    }
+    const html = renderComponentView(resolved)
+    expect(html).toContain("<ui-button")
+    expect(html).not.toContain("border-")
+    expect(html).not.toContain("data-node-type")
+  })
+
+  it("ルートLayoutはposition:relativeのラッパーで描画", () => {
+    const resolved: ResolvedNode = {
+      node: { type: "layout", direction: "vertical", sizing: "auto", children: [] },
+      x: 0, y: 0, w: 800, h: 600,
+      children: [],
+    }
+    const html = renderComponentView(resolved, true)
+    expect(html).toContain("position: relative")
+    expect(html).toContain("width: 800px")
+    expect(html).toContain("height: 600px")
   })
 })

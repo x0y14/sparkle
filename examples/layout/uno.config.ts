@@ -2,24 +2,110 @@ import { defineConfig } from "unocss"
 import presetWind4 from "@unocss/preset-wind4"
 import presetTypography from "@unocss/preset-typography"
 
+const layoutSafelist = [
+  "flex", "flex-row", "flex-col",
+  "items-center", "justify-center",
+  "gap-2", "p-2", "p-4",
+  "border-2", "border-blue-300", "border-gray-300",
+  "bg-blue-50", "bg-gray-50", "border-green-300", "bg-green-50",
+  "rounded", "text-sm", "font-mono", "flex-1",
+  "cursor-grab",
+  "shadow-lg", "rounded-lg", "z-50",
+  "px-3", "py-2", "select-none",
+  "hover:bg-gray-100",
+  "absolute", "relative", "top-2", "right-2", "bottom-2",
+  "border", "border-gray-300", "py-1", "p-3",
+]
+
+const uiSafelist = [
+  "bg-default-200", "text-default-800", "bg-primary", "text-white",
+  "bg-secondary", "bg-success", "bg-warning", "text-black", "bg-danger",
+  "bg-default-100", "bg-primary-50", "text-primary-600",
+  "bg-secondary-50", "text-secondary-600", "bg-success-50", "text-success-600",
+  "bg-warning-50", "text-warning-600", "bg-danger-50", "text-danger-600",
+  "border", "border-default-300", "border-primary", "text-primary",
+  "border-secondary", "text-secondary", "border-success", "text-success",
+  "border-warning", "text-warning", "border-danger", "text-danger",
+  "text-foreground", "bg-default-500",
+  "hover:bg-default-300", "hover:bg-primary-600", "hover:bg-secondary-600",
+  "hover:bg-success-600", "hover:bg-warning-600", "hover:bg-danger-600",
+  "border-2", "border-default-200", "hover:bg-default-100",
+  "hover:bg-primary-50", "hover:bg-secondary-50", "hover:bg-success-50",
+  "hover:bg-warning-50", "hover:bg-danger-50",
+  "hover:bg-default-200", "hover:bg-primary-100", "hover:bg-secondary-100",
+  "hover:bg-success-100", "hover:bg-warning-100", "hover:bg-danger-100",
+  "shadow-lg", "shadow-default-200/50", "hover:shadow-default-300/60",
+  "shadow-primary/40", "hover:shadow-primary/50",
+  "shadow-secondary/40", "hover:shadow-secondary/50",
+  "shadow-success/40", "hover:shadow-success/50",
+  "shadow-warning/40", "hover:shadow-warning/50",
+  "shadow-danger/40", "hover:shadow-danger/50",
+  "hover:bg-primary", "hover:text-white", "hover:bg-secondary",
+  "hover:bg-success", "hover:bg-warning", "hover:text-black",
+  "hover:bg-danger",
+  "text-xs", "px-3", "h-8", "min-w-16", "gap-1",
+  "text-sm", "px-4", "h-10", "min-w-20", "gap-2",
+  "text-base", "px-6", "h-12", "min-w-24",
+  "w-8", "w-10", "w-12", "h-4", "h-5", "h-6", "h-7", "h-8", "h-10", "h-12",
+  "w-3", "w-4", "w-5", "w-6", "w-14", "h-3", "h-14",
+  "px-1", "px-1.5", "px-2", "px-2.5",
+  "text-[10px]", "min-w-4", "min-w-5", "min-w-6",
+  "focus-within:bg-default-100", "hover:border-default-400",
+  "focus-within:border-primary", "border-b-2",
+  "bg-content1", "shadow-md",
+  "rounded-none", "rounded-sm", "rounded-md", "rounded-lg", "rounded-full",
+  "h-1", "h-2", "h-3",
+  "top-0", "right-0", "translate-x-1/2", "-translate-y-1/2",
+  "left-0", "-translate-x-1/2", "bottom-0", "translate-y-1/2",
+]
+
 export default defineConfig({
-  safelist: [
-    // renderLayoutNode で動的に使用するクラス
-    "flex", "flex-row", "flex-col",
-    "items-center", "justify-center",
-    "gap-2", "p-2", "p-4",
-    "border-2", "border-blue-300", "border-gray-300",
-    "bg-blue-50", "bg-gray-50", "border-green-300", "bg-green-50",
-    "rounded", "text-sm", "font-mono", "flex-1",
-    // ドラッグ用
-    "cursor-grab",
-    // ツールボックス用
-    "shadow-lg", "rounded-lg", "z-50",
-    "px-3", "py-2", "select-none",
-    "hover:bg-gray-100",
-    "absolute", "relative", "top-2", "right-2", "bottom-2",
-    // インスペクター用
-    "border", "border-gray-300", "py-1", "p-3",
-  ],
+  safelist: [...layoutSafelist, ...uiSafelist],
   presets: [presetWind4(), presetTypography()],
+  theme: {
+    colors: {
+      surface: "#2d2d44",
+      border: "#3a3a5c",
+      canvas: "#1a1a2e",
+      accent: "#8b8bff",
+      muted: "#aaa",
+      "muted-dim": "#888",
+      primary: {
+        50: "#EEF2FF", 100: "#E0E7FF", 200: "#C7D2FE", 300: "#A5B4FC",
+        400: "#818CF8", 500: "#6366F1", 600: "#4F46E5", 700: "#4338CA",
+        800: "#3730A3", 900: "#312E81", DEFAULT: "#6366F1",
+      },
+      secondary: {
+        50: "#F5F3FF", 100: "#EDE9FE", 200: "#DDD6FE", 300: "#C4B5FD",
+        400: "#A78BFA", 500: "#8B5CF6", 600: "#7C3AED", 700: "#6D28D9",
+        800: "#5B21B6", 900: "#4C1D95", DEFAULT: "#8B5CF6",
+      },
+      success: {
+        50: "#F0FDF4", 100: "#DCFCE7", 200: "#BBF7D0", 300: "#86EFAC",
+        400: "#4ADE80", 500: "#22C55E", 600: "#16A34A", 700: "#15803D",
+        800: "#166534", 900: "#14532D", DEFAULT: "#22C55E",
+      },
+      warning: {
+        50: "#FFFBEB", 100: "#FEF3C7", 200: "#FDE68A", 300: "#FCD34D",
+        400: "#FBBF24", 500: "#F59E0B", 600: "#D97706", 700: "#B45309",
+        800: "#92400E", 900: "#78350F", DEFAULT: "#F59E0B",
+      },
+      danger: {
+        50: "#FEF2F2", 100: "#FEE2E2", 200: "#FECACA", 300: "#FCA5A5",
+        400: "#F87171", 500: "#EF4444", 600: "#DC2626", 700: "#B91C1C",
+        800: "#991B1B", 900: "#7F1D1D", DEFAULT: "#EF4444",
+      },
+      default: {
+        50: "#FAFAFA", 100: "#F4F4F5", 200: "#E4E4E7", 300: "#D4D4D8",
+        400: "#A1A1AA", 500: "#71717A", 600: "#52525B", 700: "#3F3F46",
+        800: "#27272A", 900: "#18181B", DEFAULT: "#D4D4D8",
+      },
+      foreground: "#11181C",
+      background: "#FFFFFF",
+      content1: "#FFFFFF",
+      content2: "#F4F4F5",
+      content3: "#E4E4E7",
+      content4: "#D4D4D8",
+    },
+  },
 })

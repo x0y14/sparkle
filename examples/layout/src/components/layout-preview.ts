@@ -125,12 +125,14 @@ const LayoutPreview = defineElement(
 
         const doc = parseLayoutDocument(props.content)
         if (!doc) return
+        const containerEl = host.current.parentElement ?? host.current
+        const containerRect = containerEl.getBoundingClientRect()
+        const remSize = parseFloat(getComputedStyle(host.current).fontSize) || 16
+        const resolved = computeLayout(doc, containerRect.width || 800, containerRect.height || 600, remSize)
+        const layouts = buildLayoutGeometry(resolved)
         const rootEl = root.querySelector("[data-path='']") as HTMLElement
         if (!rootEl) return
         const rootRect = rootEl.getBoundingClientRect()
-        const remSize = parseFloat(getComputedStyle(host.current).fontSize) || 16
-        const resolved = computeLayout(doc, rootRect.width, rootRect.height, remSize)
-        const layouts = buildLayoutGeometry(resolved)
         const mouseXPx = me.clientX - rootRect.left
         const mouseYPx = me.clientY - rootRect.top
         const drop = findDropTarget(layouts, mouseXPx, mouseYPx, dragState.sourcePath)

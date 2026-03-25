@@ -4,7 +4,20 @@ export type RemSizing = { sizing: "rem"; remW: number; remH: number }
 export type NodeSizing = AutoSizing | RatioSizing | RemSizing
 export type SizingMode = NodeSizing["sizing"]
 
-export type Item = { type: "item"; id: string } & NodeSizing
+export type Item = { type: "item"; id: string; component?: string } & NodeSizing
+
+export const AVAILABLE_COMPONENTS = [
+  { tag: "ui-button", label: "Button" },
+  { tag: "ui-input", label: "Input" },
+  { tag: "ui-card", label: "Card" },
+  { tag: "ui-badge", label: "Badge" },
+  { tag: "ui-switch", label: "Switch" },
+  { tag: "ui-checkbox", label: "Checkbox" },
+  { tag: "ui-chip", label: "Chip" },
+  { tag: "ui-avatar", label: "Avatar" },
+  { tag: "ui-progress-bar", label: "Progress Bar" },
+  { tag: "ui-textarea", label: "Textarea" },
+] as const
 export type Layout = { type: "layout"; direction: "vertical" | "horizontal"; children: LayoutNode[] } & NodeSizing
 export type Spacer = { type: "spacer" } & NodeSizing
 export type LayoutNode = Item | Layout | Spacer
@@ -154,6 +167,27 @@ export function renderResolvedNodeWithPath(resolved: ResolvedNode, path: string 
     return renderResolvedNodeWithPath(c, childPath, false)
   }).join("")
   return `<div data-node-type="layout" data-direction="${node.direction}" data-path="${path}" style="position: ${position}; left: ${x}px; top: ${y}px; width: ${w}px; height: ${h}px;" class="border-2 border-gray-300 bg-gray-50 rounded">${childrenHtml}</div>`
+}
+
+export function renderComponentView(resolved: ResolvedNode, isRoot: boolean = true): string {
+  const { node, x, y, w, h } = resolved
+
+  if (node.type === "spacer") return ""
+
+  if (node.type === "item") {
+    const style = `position: absolute; left: ${x}px; top: ${y}px; width: ${w}px; height: ${h}px;`
+    if (node.component) {
+      const tag = escapeHtml(node.component)
+      return `<${tag} style="${style}"></${tag}>`
+    }
+    return `<div style="${style}"></div>`
+  }
+
+  const childrenHtml = (resolved.children ?? []).map(c => renderComponentView(c, false)).join("")
+  if (isRoot) {
+    return `<div style="position: relative; width: ${w}px; height: ${h}px;">${childrenHtml}</div>`
+  }
+  return childrenHtml
 }
 
 export function createNewNode(nodeType: "item" | "vertical" | "horizontal" | "spacer"): LayoutNode {

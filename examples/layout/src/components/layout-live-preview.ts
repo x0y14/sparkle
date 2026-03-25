@@ -3,10 +3,11 @@ import "./layout-editor"
 import "./layout-preview"
 import "./layout-toolbox"
 import "./layout-node-inspector"
-import { parseLayoutDocument, createNewNode } from "../utils/layout-parser"
+import "../ui/ui-imports"
+import { parseLayoutDocument, createNewNode, renderComponentView } from "../utils/layout-parser"
 import type { LayoutDocument } from "../utils/layout-parser"
 import { findDropTarget, buildLayoutGeometry } from "../utils/drop-target"
-import { insertNode, updateItemId, updateLayoutDirection, updateNodeSizing, removeNode, getNode } from "../utils/tree-ops"
+import { insertNode, updateItemId, updateLayoutDirection, updateNodeSizing, updateItemComponent, removeNode, getNode } from "../utils/tree-ops"
 import type { DropResult } from "../utils/drop-target"
 import { computeLayout, pxToFraction } from "../utils/compute-layout"
 import type { ResolvedNode } from "../utils/compute-layout"
@@ -45,43 +46,63 @@ const LayoutLivePreview = defineElement(
       const previewBtn = root.querySelector("button[data-mode='preview']") as HTMLElement
       const editorBtnEl = root.querySelector("button[data-mode='editor']") as HTMLElement
 
-      const setViewMode = (mode: "preview" | "editor") => {
-        if (mode === "editor") {
-          // preview → JSON: 構造体をparse→dump（sizing補完込み）
-          const previewEl = root.querySelector("layout-preview") as any
-          const editorEl = root.querySelector("layout-editor") as any
-          if (previewEl && editorEl) {
-            const doc = parseLayoutDocument(previewEl.content)
+      const componentPanel = root.querySelector("[data-panel='component']") as HTMLElement
+      const componentBtn = root.querySelector("button[data-mode='component']") as HTMLElement
+
+      const setViewMode = (mode: "preview" | "editor" | "component") => {
+        // 1. 現在表示中のパネルからJSONを取得
+        let json = ""
+        const previewEl = root.querySelector("layout-preview") as any
+        const editorEl = root.querySelector("layout-editor") as any
+        const componentContainer = root.querySelector("[data-component-container]") as HTMLElement
+
+        if (previewPanel.style.display !== "none" && previewEl) {
+          const doc = parseLayoutDocument(previewEl.content)
+          if (doc) json = JSON.stringify(doc, null, 2)
+        } else if (editorPanel.style.display !== "none" && editorEl) {
+          const ta = editorEl.shadowRoot?.querySelector("textarea") as HTMLTextAreaElement
+          if (ta) json = ta.value
+        } else if (componentPanel?.style.display !== "none" && componentContainer) {
+          json = componentContainer.getAttribute("data-json") ?? ""
+        }
+
+        // 2. 表示切り替え（loadの前にやる）
+        editorPanel.style.display = mode === "editor" ? "" : "none"
+        previewPanel.style.display = mode === "preview" ? "" : "none"
+        if (componentPanel) componentPanel.style.display = mode === "component" ? "" : "none"
+        previewBtn.classList.toggle("active", mode === "preview")
+        editorBtnEl.classList.toggle("active", mode === "editor")
+        componentBtn?.classList.toggle("active", mode === "component")
+
+        // 3. 対象パネルにJSONをload（パネル表示済み）
+        if (mode === "preview") {
+          if (previewEl) previewEl.content = json
+        } else if (mode === "editor") {
+          if (editorEl) {
+            editorEl.value = json
+            const ta = editorEl.shadowRoot?.querySelector("textarea") as HTMLTextAreaElement
+            if (ta) ta.value = json
+          }
+        } else if (mode === "component") {
+          if (componentContainer && componentPanel) {
+            componentContainer.setAttribute("data-json", json)
+            const doc = parseLayoutDocument(json)
             if (doc) {
-              const json = JSON.stringify(doc, null, 2)
-              editorEl.value = json
-              const ta = editorEl.shadowRoot?.querySelector("textarea") as HTMLTextAreaElement
-              if (ta) ta.value = json
+              const remSize = parseFloat(getComputedStyle(componentPanel).fontSize) || 16
+              const rect = componentPanel.getBoundingClientRect()
+              const resolved = computeLayout(doc, rect.width || 800, rect.height || 600, remSize)
+              componentContainer.innerHTML = renderComponentView(resolved, true)
+            } else {
+              componentContainer.innerHTML = ""
             }
           }
-          editorPanel.style.display = ""
-          previewPanel.style.display = "none"
-          editorBtnEl.classList.add("active")
-          previewBtn.classList.remove("active")
-        } else {
-          // JSON → preview: JSONをload
-          const editorEl = root.querySelector("layout-editor") as any
-          const previewEl = root.querySelector("layout-preview") as any
-          if (editorEl && previewEl) {
-            const ta = editorEl.shadowRoot?.querySelector("textarea") as HTMLTextAreaElement
-            if (ta) previewEl.content = ta.value
-          }
-          editorPanel.style.display = "none"
-          previewPanel.style.display = ""
-          previewBtn.classList.add("active")
-          editorBtnEl.classList.remove("active")
         }
       }
 
       const toggleClickHandler = ((e: Event) => {
         const target = (e.target as HTMLElement).closest("button[data-mode]") as HTMLElement | null
         if (!target) return
-        const mode = target.getAttribute("data-mode") as "preview" | "editor"
+        const mode = target.getAttribute("data-mode") as "preview" | "editor" | "component"
         setViewMode(mode)
       }) as EventListener
 
@@ -191,11 +212,14 @@ const LayoutLivePreview = defineElement(
         if (!previewEl?.shadowRoot) return
         const doc = parseLayoutDocument((previewEl as any).content)
         if (!doc) return
+        const panelEl = previewEl.parentElement ?? previewEl
+        const panelRect = panelEl.getBoundingClientRect()
+        const remSize = parseFloat(getComputedStyle(previewEl).fontSize) || 16
+        const resolved = computeLayout(doc, panelRect.width || 800, panelRect.height || 600, remSize)
+        const layouts = buildLayoutGeometry(resolved)
         const rootLayoutEl = previewEl.shadowRoot.querySelector("[data-path='']") as HTMLElement
         if (!rootLayoutEl) return
         const rootRect = rootLayoutEl.getBoundingClientRect()
-        const resolved = computeLayout(doc, rootRect.width, rootRect.height)
-        const layouts = buildLayoutGeometry(resolved)
         const mouseXPx = mouseEvent.clientX - rootRect.left
         const mouseYPx = mouseEvent.clientY - rootRect.top
         const drop = findDropTarget(layouts, mouseXPx, mouseYPx, null)
@@ -258,6 +282,7 @@ const LayoutLivePreview = defineElement(
           inspector.nodeRatioH = ""
           inspector.nodeRemW = ""
           inspector.nodeRemH = ""
+          inspector.nodeComponent = ""
         }
 
         if (detail.path === null) {
@@ -276,6 +301,7 @@ const LayoutLivePreview = defineElement(
           inspector.nodeRatioH = n?.ratioH ?? ""
           inspector.nodeRemW = n?.remW != null ? String(n.remW) : ""
           inspector.nodeRemH = n?.remH != null ? String(n.remH) : ""
+          inspector.nodeComponent = n?.component ?? ""
         }
       }) as EventListener
 
@@ -355,6 +381,17 @@ const LayoutLivePreview = defineElement(
         updateAllWithDoc({ ...doc, node: newRoot })
       }) as EventListener
 
+      const componentChangeHandler = ((e: Event) => {
+        if (!(e instanceof CustomEvent) || selectedNodePath === null) return
+        const previewEl = root.querySelector("layout-preview") as any
+        if (!previewEl) return
+        const doc = parseLayoutDocument(previewEl.content)
+        if (!doc) return
+        const newRoot = updateItemComponent(doc.node, selectedNodePath, e.detail.component || undefined)
+        if (!newRoot) return
+        updateAllWithDoc({ ...doc, node: newRoot })
+      }) as EventListener
+
       const nodeDeleteHandler = ((_e: Event) => {
         if (selectedNodePath === null) return
         const previewEl = root.querySelector("layout-preview") as any
@@ -393,6 +430,7 @@ const LayoutLivePreview = defineElement(
       inspectorEl?.addEventListener("id-change", idChangeHandler)
       inspectorEl?.addEventListener("direction-change", directionChangeHandler)
       inspectorEl?.addEventListener("sizing-change", sizingChangeHandler)
+      inspectorEl?.addEventListener("component-change", componentChangeHandler)
       inspectorEl?.addEventListener("node-delete", nodeDeleteHandler)
 
       root.addEventListener("mousedown", toolboxMousedownHandler)
@@ -407,6 +445,7 @@ const LayoutLivePreview = defineElement(
         inspectorEl?.removeEventListener("id-change", idChangeHandler)
         inspectorEl?.removeEventListener("direction-change", directionChangeHandler)
         inspectorEl?.removeEventListener("sizing-change", sizingChangeHandler)
+        inspectorEl?.removeEventListener("component-change", componentChangeHandler)
         inspectorEl?.removeEventListener("node-delete", nodeDeleteHandler)
         root.removeEventListener("mousedown", toolboxMousedownHandler)
         root.removeEventListener("mousemove", toolboxMousemoveHandler)
@@ -420,6 +459,7 @@ const LayoutLivePreview = defineElement(
     <div class="toggle-group">
       <button class="toggle-btn active" data-mode="preview">Preview</button>
       <button class="toggle-btn" data-mode="editor">JSON</button>
+      <button class="toggle-btn" data-mode="component">Component</button>
     </div>
   </header>
   <div class="flex flex-1 min-h-0">
@@ -430,6 +470,9 @@ const LayoutLivePreview = defineElement(
       <layout-preview></layout-preview>
       <layout-toolbox class="absolute top-2 right-2 z-50"></layout-toolbox>
       <layout-node-inspector class="absolute bottom-2 right-2 z-50"></layout-node-inspector>
+    </div>
+    <div data-panel="component" class="w-full overflow-auto relative" style="display:none">
+      <div data-component-container></div>
     </div>
   </div>
 </div>`
